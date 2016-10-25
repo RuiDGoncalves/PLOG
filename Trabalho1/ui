@@ -1,0 +1,82 @@
+print_board(X) :- write('\n'),print_letters(X,X),print_top_row(X),print_house(X,1),print_middle(X,X),print_bottom_row(X).
+
+print_letters(X,X) :- X > 0,write('    '),print_letter(X,X).
+print_letter(1,X) :- write(' '),C is 65+X-1,put_code(C),write(' '),write('\n').
+print_letter(Y,X) :- write(' '),C is 65+X-Y,put_code(C),write(' '),Y1 is Y-1, print_letter(Y1,X).
+
+
+
+print_top_row(X) :- X > 0,write('    '),lt_corner(X), print_top_house(X).
+print_top_house(1) :- horiz(X),horiz(X),rt_corner(X), write('\n').
+print_top_house(X) :- horiz(X),horiz(X),top_con(X), X1 is X-1, print_top_house(X1).
+
+print_bottom_row(X) :- X > 0,write('    '), lb_corner(X), print_bottom_house(X).
+print_bottom_house(1) :- horiz(X),horiz(X),rb_corner(X), write('\n').
+print_bottom_house(X) :- horiz(X),horiz(X),bottom_con(X), X1 is X-1, print_bottom_house(X1).
+
+print_middle(1,Y).
+print_middle(X,Y) :- print_middle_row(Y),print_house(Y,X),X1 is X-1,print_middle(X1,Y).
+
+print_middle_row(X) :- X > 0,write('    '), left_con(X), print_middle_house(X).
+print_middle_house(1) :- horiz(X),horiz(X),right_con(X), write('\n').
+print_middle_house(X) :- horiz(X),horiz(X),middle(X), X1 is X-1, print_middle_house(X1).
+
+print_house(Y,1) :- write('  '),write(1),write(' '), vert(X), print_white(Y).
+print_house(Y,X) :- X mod 2 =:= 0,C is Y-X+2, C>=10,write(' '),write(C),write(' '),vert(X), print_black(Y).
+print_house(Y,X) :- X mod 2 =:= 1,C is Y-X+2, C>=10,write(' '),write(C),write(' '), vert(X), print_white(Y).
+print_house(Y,X) :- X mod 2 =:= 0,C is Y-X+2, C<10, write('  '),write(C),write(' '),vert(X), print_black(Y).
+print_house(Y,X) :- X mod 2 =:= 1,C is Y-X+2, C<10, write('  '),write(C),write(' '), vert(X), print_white(Y).
+
+print_black(1) :- black_circle(X),write(' '),vert(X),write('\n').
+print_black(X) :- black_circle(X),write(' '),vert(X), X1 is X-1, print_white(X1).
+
+print_white(1) :- white_circle(X),write(' '),vert(X),write('\n').
+print_white(X) :- white_circle(X),write(' '),vert(X), X1 is X-1, print_black(X1).
+
+
+/* Characteres */
+
+lt_corner(X) :- put_code(9484).
+rt_corner(X) :- put_code(9488).
+lb_corner(X) :- put_code(9492).
+rb_corner(X) :- put_code(9496).
+horiz(X) :- put_code(9472).
+vert(X) :- put_code(9474).
+top_con(X) :- put_code(9516).
+bottom_con(X) :- put_code(9524).
+left_con(X) :- put_code(9500).
+right_con(X) :- put_code(9508).
+middle(X) :- put_code(9532).
+
+/*
+%Heavy lines
+lt_corner(X) :- put_code(9487).
+rt_corner(X) :- put_code(9491).
+lb_corner(X) :- put_code(9495).
+rb_corner(X) :- put_code(9499).
+horiz(X) :- put_code(9473).
+vert(X) :- put_code(9475).
+top_con(X) :- put_code(9523).
+bottom_con(X) :- put_code(9531).
+left_con(X) :- put_code(9507).
+right_con(X) :- put_code(9515).
+middle(X) :- put_code(9547).
+*/
+
+black_circle(X) :- put_code(11044).%128308).
+white_circle(X) :- put_code(9711).%11093).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
