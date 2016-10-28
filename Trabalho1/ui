@@ -1,31 +1,65 @@
-print_board(X) :- write('\n'),print_letters(X,X),print_top_row(X),print_house(X,1),print_middle(X,X),print_bottom_row(X).
+/*==========================================================================================================================================*/
 
-print_letters(X,X) :- X > 0,write('    '),print_letter(X,X).
-print_letter(1,X) :- write(' '),C is 65+X-1,put_code(C),write(' '),write('\n').
-print_letter(Y,X) :- write(' '),C is 65+X-Y,put_code(C),write(' '),Y1 is Y-1, print_letter(Y1,X).
+/* BOARD */
 
 
+board(B) :- [[2,1,0,1,2,1,2,0,2,1],[1,2,0,0,1,2,1,0,1,2],[2,0,2,1,2,1,0,1,2,1],[1,2,0,0,0,2,0,0,1,0],[2,1,2,0,2,0,2,1,2,1],[0,0,0,2,0,0,0,2,1,2],[2,0,2,0,0,0,0,1,2,0],[0,0,0,0,0,0,1,2,1,2],[2,1,2,1,0,1,0,1,2,1],[1,2,1,2,1,2,0,2,1,2]].
 
-print_top_row(X) :- X > 0,write('    '),lt_corner(X), print_top_house(X).
-print_top_house(1) :- horiz(X),horiz(X),rt_corner(X), write('\n').
-print_top_house(X) :- horiz(X),horiz(X),top_con(X), X1 is X-1, print_top_house(X1).
+/*==========================================================================================================================================*/
 
-print_bottom_row(X) :- X > 0,write('    '), lb_corner(X), print_bottom_house(X).
-print_bottom_house(1) :- horiz(X),horiz(X),rb_corner(X), write('\n').
-print_bottom_house(X) :- horiz(X),horiz(X),bottom_con(X), X1 is X-1, print_bottom_house(X1).
+/* PRINT BOARD */
 
-print_middle(1,Y).
-print_middle(X,Y) :- print_middle_row(Y),print_house(Y,X),X1 is X-1,print_middle(X1,Y).
+/* Print board */
+/* parameters: Size - of list; Board - list that represents the board */
+print_board(Size, Board) :- write('\n'),print_letters(Size,Size),print_top_lines(Size),print_squares(1,Size,Board),print_bottom_lines(Size).
 
-print_middle_row(X) :- X > 0,write('    '), left_con(X), print_middle_house(X).
-print_middle_house(1) :- horiz(X),horiz(X),right_con(X), write('\n').
-print_middle_house(X) :- horiz(X),horiz(X),middle(X), X1 is X-1, print_middle_house(X1).
+/* Print letters on top of the board */
+print_letters(Size, Size) :- Size > 0, write('    '), print_letter(Size, Size).
+print_letter(1, Size) :- write(' '),C is 65+Size-1,put_code(C),write(' '),write('\n').
+print_letter(Line, Size) :- write(' '), C is 65+Size-Line, put_code(C), write(' '), Nextline is Line-1, print_letter(Nextline,Size).
 
-print_house(Y,1) :- write('  '),write(1),write(' '), vert(X), print_white(Y).
-print_house(Y,X) :- X mod 2 =:= 0,C is Y-X+2, C>=10,write(' '),write(C),write(' '),vert(X), print_black(Y).
-print_house(Y,X) :- X mod 2 =:= 1,C is Y-X+2, C>=10,write(' '),write(C),write(' '), vert(X), print_white(Y).
-print_house(Y,X) :- X mod 2 =:= 0,C is Y-X+2, C<10, write('  '),write(C),write(' '),vert(X), print_black(Y).
-print_house(Y,X) :- X mod 2 =:= 1,C is Y-X+2, C<10, write('  '),write(C),write(' '), vert(X), print_white(Y).
+/* Print the top line of the board */
+print_top_lines(Column) :- Column > 0,write('    '),lt_corner(_), print_top_line(Column).
+print_top_line(1) :- horiz(_),horiz(_),rt_corner(_), write('\n').
+print_top_line(Column) :- horiz(_),horiz(_),top_con(_), Nextcolumn is Column-1, print_top_line(Nextcolumn).
+
+/* Print the bottom line line of the board */
+print_bottom_lines(Column) :- Column > 0,write('    '), lb_corner(_), print_bottom_line(Column).
+print_bottom_line(1) :- horiz(_),horiz(_),rb_corner(_), write('\n').
+print_bottom_line(Column) :- horiz(_),horiz(_),bottom_con(_), Nextcolumn is Column-1, print_bottom_line(Nextcolumn).
+
+/* Print the middle of the board */
+print_squares(Currentline, Size, []).
+print_squares(1, Size, [Line|Board]) :- print_pieces(1, Size, Line), print_squares(2, Size, Board).
+print_squares(Currentline, Size, [Line|Board]) :- print_middle_lines(Size), print_pieces(Currentline, Size, Line), Nextline is Currentline+1, print_squares(Nextline, Size, Board).
+
+/* Print the horizontal lines and connectors of the board */
+print_middle_lines(Size) :- Size > 0,write('    '), left_con(_), print_middle_line(Size).
+print_middle_line(1) :- horiz(_),horiz(_),right_con(_), write('\n').
+print_middle_line(Size) :- horiz(_),horiz(_),middle(_), Nextsize is Size-1, print_middle_line(Nextsize).
+
+/* Print the pieces and the vertical lines */
+print_pieces(Currline, Nrline, Line) :- Currline >=10, write(' '), write(Currline),write(' '), print_piece(Line),vert(_),write('\n').
+print_pieces(Currline, Nrline, Line) :- Currline <10, write('  '), write(Currline),write(' '), print_piece(Line),vert(_),write('\n').
+
+print_piece([]).
+print_piece([0|Line]) :- vert(_), write('  '), print_piece(Line).
+print_piece([1|Line]) :- vert(_), black_circle(_),write(' '), print_piece(Line).
+print_piece([2|Line]) :- vert(_), white_circle(_),write(' '), print_piece(Line).
+
+/* Print the middle of the board *//*
+print_squares(1,Y).
+print_squares(X,Y) :- print_middle_lines(Y),print_pieces(Y,X),X1 is X-1,print_squares(X1,Y).
+
+*//* Print the horizontal lines and connectors of the board *//*
+print_middle_lines(X) :- X > 0,write('    '), left_con(X), print_middle_line(X).
+print_middle_line(1) :- horiz(X),horiz(X),right_con(X), write('\n').
+print_middle_line(X) :- horiz(X),horiz(X),middle(X), X1 is X-1, print_middle_line(X1).
+
+*//* Print the pieces and the vertical lines *//*
+print_pieces(Y,1) :- write('  '),write(1),write(' '), vert(X), print_white(Y).
+print_pieces(Y,X) :- C is Y-X+2, C>=10,write(' '),write(C),write(' '),vert(X), print_black(Y).
+print_pieces(Y,X) :- C is Y-X+2, C<10, write('  '),write(C),write(' '),vert(X), print_black(Y).
 
 print_black(1) :- black_circle(X),write(' '),vert(X),write('\n').
 print_black(X) :- black_circle(X),write(' '),vert(X), X1 is X-1, print_white(X1).
@@ -48,23 +82,8 @@ left_con(X) :- put_code(9500).
 right_con(X) :- put_code(9508).
 middle(X) :- put_code(9532).
 
-/*
-%Heavy lines
-lt_corner(X) :- put_code(9487).
-rt_corner(X) :- put_code(9491).
-lb_corner(X) :- put_code(9495).
-rb_corner(X) :- put_code(9499).
-horiz(X) :- put_code(9473).
-vert(X) :- put_code(9475).
-top_con(X) :- put_code(9523).
-bottom_con(X) :- put_code(9531).
-left_con(X) :- put_code(9507).
-right_con(X) :- put_code(9515).
-middle(X) :- put_code(9547).
-*/
-
-black_circle(X) :- put_code(11044).%128308).
-white_circle(X) :- put_code(9711).%11093).
+black_circle(X) :- put_code(11044).
+white_circle(X) :- put_code(9711).
 
 
 
