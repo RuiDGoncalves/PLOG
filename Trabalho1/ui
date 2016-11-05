@@ -1,12 +1,14 @@
 /*=========================================================================================================================================*/
 
 /* PLAY */
+cage :- load_libraries, play(1, [[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2]]).
 
-cage :- play([[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2]]).
+/* First argument -> player) */
+play(1, Board) :- print_board(10, Board), nl, write('Player1'), nl, write('From '), get_char(InitialColumn), get_char(InitialLine), skip_line, write('To '), get_char(FinalColumn), get_char(FinalLine), skip_line, play(2, Board).
+
+play(2, Board) :- print_board(10, Board), nl, write('Player2'), nl, write('From '), get_char(InitialColumn), get_char(InitialLine), skip_line, write('To '), get_char(FinalColumn), get_char(FinalLine), skip_line, play(1, Board).
 
 
-play(Board) :- print_board(10, Board).
-/* play(Board) :- print_board(10, Board), scanf(Move), move(
 
 
 /*=========================================================================================================================================*/
@@ -14,21 +16,21 @@ play(Board) :- print_board(10, Board).
 /* PRINT BOARD */
 /* Print board */
 /* parameters: Size - of list; Board - list that represents the board */
-print_board(Size, Board) :- write('\n'),print_letters(Size,Size),print_top_lines(Size),print_squares(1,Size,Board),print_bottom_lines(Size).
+print_board(Size, Board) :- nl,print_letters(Size,Size),print_top_lines(Size),print_squares(1,Size,Board),print_bottom_lines(Size).
 
 /* Print letters on top of the board */
 print_letters(Size, Size) :- Size > 0, write('    '), print_letter(Size, Size).
-print_letter(1, Size) :- write(' '),C is 65+Size-1,put_code(C),write(' '),write('\n').
+print_letter(1, Size) :- write(' '),C is 65+Size-1,put_code(C),write(' '),nl.
 print_letter(Line, Size) :- write(' '), C is 65+Size-Line, put_code(C), write(' '), Nextline is Line-1, print_letter(Nextline,Size).
 
 /* Print the top line of the board */
 print_top_lines(Column) :- Column > 0,write('    '),lt_corner, print_top_line(Column).
-print_top_line(1) :- horiz,horiz,rt_corner, write('\n').
+print_top_line(1) :- horiz,horiz,rt_corner, nl.
 print_top_line(Column) :- horiz,horiz,top_con, Nextcolumn is Column-1, print_top_line(Nextcolumn).
 
 /* Print the bottom line line of the board */
 print_bottom_lines(Column) :- Column > 0,write('    '), lb_corner, print_bottom_line(Column).
-print_bottom_line(1) :- horiz,horiz,rb_corner, write('\n').
+print_bottom_line(1) :- horiz,horiz,rb_corner, nl.
 print_bottom_line(Column) :- horiz,horiz,bottom_con, Nextcolumn is Column-1, print_bottom_line(Nextcolumn).
 
 /* Print the middle of the board */
@@ -38,12 +40,12 @@ print_squares(Currentline, Size, [Line|Board]) :- print_middle_lines(Size), prin
 
 /* Print the horizontal lines and connectors of the board */
 print_middle_lines(Size) :- Size > 0,write('    '), left_con, print_middle_line(Size).
-print_middle_line(1) :- horiz,horiz,right_con, write('\n').
+print_middle_line(1) :- horiz,horiz,right_con, nl.
 print_middle_line(Size) :- horiz,horiz,middle, Nextsize is Size-1, print_middle_line(Nextsize).
 
 /* Print the pieces and the vertical lines */
-print_pieces(Currline, Nrline, Line) :- Currline >=10, write(' '), write(Currline),write(' '), print_piece(Line),vert,write('\n').
-print_pieces(Currline, Nrline, Line) :- Currline <10, write('  '), write(Currline),write(' '), print_piece(Line),vert,write('\n').
+print_pieces(Currline, Nrline, Line) :- Currline >=10, write(' '), write(Currline),write(' '), print_piece(Line),vert, nl.
+print_pieces(Currline, Nrline, Line) :- Currline <10, write('  '), write(Currline),write(' '), print_piece(Line),vert, nl.
 
 print_piece([]).
 print_piece([0|Line]) :- vert, write('  '), print_piece(Line).
@@ -66,9 +68,14 @@ right_con :- put_code(9508).
 middle :- put_code(9532).
 
 black_circle :- put_code(11044).
-white_circle :- put_code(9711).
+white_circle :- put_code(11093).%put_code(9711).
 
 
+/*=========================================================================================================================================*/
+
+/* LIBRARIES */
+
+load_libraries :- use_module(library(lists)).
 
 
 
