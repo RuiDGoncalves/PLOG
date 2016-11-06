@@ -3,16 +3,34 @@
 /* PLAY */
 cage :-
 	load_libraries,
+	write('***** WELCOME TO CAGE *****'), nl,
+	main_menu.
+
+
+/* MAIN MENU */
+main_menu :- 
+	write('1. Play Human Vs. Human'), nl,
+	write('2. Play Human Vs. Computer'), nl,
+	write('3. Play Computer Vs. Computer'), nl,
+	write('4. Exit'), nl, nl,
+	write('What do you want to do? '),
+	get_code(Option), skip_line,
+	O is Option-49,
+	play_mode(O).
+
+
+play_mode(0) :-
 	play(1, [[2,1,2,1,2,1,2,1,2,1],
-		 [1,2,1,2,1,2,1,2,1,2],
-		 [2,1,2,1,2,1,2,1,2,1],
-		 [1,2,1,2,1,2,1,2,1,2],
-		 [2,1,2,1,2,1,2,1,2,1],
-		 [1,2,1,2,1,2,1,2,1,2],
-		 [2,1,2,1,2,1,2,1,2,1],
-		 [1,2,1,2,1,2,1,2,1,2],
-		 [2,1,2,1,2,1,2,1,2,1],
-		 [1,2,1,2,1,2,1,2,1,2]]).
+		  	 [1,2,1,2,1,2,1,2,1,2],
+		 	 [2,1,2,1,2,1,2,1,2,1],
+		 	 [1,2,1,2,1,2,1,2,1,2],
+		 	 [2,1,2,1,2,1,2,1,2,1],
+		 	 [1,2,1,2,1,2,1,2,1,2],
+		 	 [2,1,2,1,2,1,2,1,2,1],
+		 	 [1,2,1,2,1,2,1,2,1,2],
+		 	 [2,1,2,1,2,1,2,1,2,1],
+		 	 [1,2,1,2,1,2,1,2,1,2]]).
+
 
 
 /* First argument -> player */
