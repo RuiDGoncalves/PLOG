@@ -1,14 +1,127 @@
 /*=========================================================================================================================================*/
 
 /* PLAY */
-cage :- load_libraries, play(1, [[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2],[2,1,2,1,2,1,2,1,2,1],[1,2,1,2,1,2,1,2,1,2]]).
+cage :-
+	load_libraries,
+	play(1, [[2,1,2,1,2,1,2,1,2,1],
+		 [1,2,1,2,1,2,1,2,1,2],
+		 [2,1,2,1,2,1,2,1,2,1],
+		 [1,2,1,2,1,2,1,2,1,2],
+		 [2,1,2,1,2,1,2,1,2,1],
+		 [1,2,1,2,1,2,1,2,1,2],
+		 [2,1,2,1,2,1,2,1,2,1],
+		 [1,2,1,2,1,2,1,2,1,2],
+		 [2,1,2,1,2,1,2,1,2,1],
+		 [1,2,1,2,1,2,1,2,1,2]]).
 
-/* First argument -> player) */
-play(1, Board) :- print_board(10, Board), nl, write('Player1'), nl, write('From '), get_char(InitialColumn), get_char(InitialLine), skip_line, write('To '), get_char(FinalColumn), get_char(FinalLine), skip_line, play(2, Board).
+new_list([]).
 
-play(2, Board) :- print_board(10, Board), nl, write('Player2'), nl, write('From '), get_char(InitialColumn), get_char(InitialLine), skip_line, write('To '), get_char(FinalColumn), get_char(FinalLine), skip_line, play(1, Board).
+/* First argument -> player */
+play(1, Board) :-
+	print_board(10, Board), nl,
+	write('Player1'), nl,
+	write('From '),
+	get_code(InitialColumn), get_code(InitialLine), skip_line,
+	write('To   '),
+	get_code(FinalColumn), get_code(FinalLine), skip_line,
+	IC is InitialColumn-65, FC is FinalColumn-65, IL is InitialLine-49, FL is FinalLine-49,
+	move(Board, NewBoard, IC, IL, FC, FL),
+	play(2, NewBoard).
+
+play(2, Board) :-
+	print_board(10, Board), nl,
+	write('Player2'), nl,
+	write('From '),
+	get_code(InitialColumn), get_code(InitialLine), skip_line,
+	write('To '),
+	get_code(FinalColumn), get_code(FinalLine), skip_line,
+	IC is InitialColumn-65, FC is FinalColumn-65, IL is InitialLine-49, FL is FinalLine-49,
+	move(Board, NewBoard, IC, IL, FC, FL),
+	play(1, NewBoard).
+
+/*=========================================================================================================================================*/
+
+/* MOVE PIECE */
+
+/* Move piece */
+move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine) :-
+	nth0(InitialLine, Board, NewLine1), /* get the line of the piece */
+	nth0(InitialColumn, NewLine1, Piece), /* get the piece id to be moved */
+	change_board_position(Board, NewBoardTemp, 0, InitialColumn, InitialLine, 0),
+	change_board_position(NewBoardTemp, NewBoard, 0, FinalColumn, FinalLine, Piece).
+	/*copy_replace(Board, NewBoard, 0, InitialColumn, InitialLine, FinalColumn, FinalLine, Piece).*/
 
 
+change_board_position([], [], Count, ColumnNr, LineNr, Piece).
+change_board_position([Line|Board], [Line|NewBoard], Count, ColumnNr, LineNr, Piece) :-
+	Count \= LineNr,
+	NextCount is Count+1,
+	change_board_position(Board, NewBoard, NextCount, ColumnNr, LineNr, Piece).
+change_board_position([Line|Board], NewBoard, Count, ColumnNr, LineNr, Piece) :- 
+	change_line_position(Line, NewLine, 0, ColumnNr, Piece),
+	NextCount is Count+1,
+	change_board_position([NewLine|Board], NewBoard, NextCount, ColumnNr, LineNr, Piece).
+
+change_line_position([], [], Count, ColumnNr, Piece).
+change_line_position([Position|Line], [Position|NewLine], Count, ColumnNr, Piece) :-
+	Count \= ColumnNr,
+	NextCount is Count+1,
+	change_line_position(Line, NewLine, NextCount, ColumnNr, Piece).
+change_line_position([Position|Line], [Piece|NewLine], Count, ColumnNr, Piece) :-
+	NextCount is Count+1,
+	change_line_position(Line, NewLine, NextCount, ColumnNr, Piece).
+
+
+
+
+/*
+copy :- mylist(X), copy(X, 0, NewX, 6), write(NewX).
+copy([], Num, [], Piece).
+copy([A|X], Num, [A|NewX], Piece) :- Num \= 1, Num2 is Num+1, copy(X, Num2, NewX, Piece).
+copy([A|X], Num, [Piece|NewX], Piece) :- Num2 is Num+1, copy(X, Num2, NewX, Piece).*/
+
+
+
+/* Copies Board to NewBoard replacing the place with the piece with 0 (empty place) and the new place with Piece *//*
+copy_replace([], NewBoard, CurrentLine, InitialColumn, InitialLine, FinalColumn, FinalLine, Piece).
+
+/* Starting position *//*
+copy_replace([Line|Board], NewBoard, InitialLine, InitialColumn, InitialLine, FinalColumn, FinalLine, Piece) :-
+	new_list(NewLine),	
+	replace_pos(Line, NewLine, 0, InitialColumn, 0),
+	NextLine is InitialLine+1,
+	copy_replace(Board, [NewBoard|NewLine], NextLine, InitialColumn, InitialLine, FinalColumn, FinalLine, Piece).
+	
+/* Final position *//*
+copy_replace([Line|Board], NewBoard, FinalLine, InitialColumn, InitialLine, FinalColumn, FinalLine, Piece) :-
+	new_list(NewLine),
+	replace_pos(Line, NewLine, 0, InitialColumn, Piece),
+	NextLine is FinalLine+1,
+	copy_replace(Board, [NewBoard|NewLine], NextLine, InitialColumn, InitialLine, FinalColumn, FinalLine, Piece).
+
+/* Straight up copy if CurrentLine != InitialLine or FinalLine *//*
+copy_replace([Line|Board], [Line|NewBoard], CurrentLine, InitialColumn, InitialLine, FinalColumn, FinalLine, Piece) :-
+	NextLine is CurrentLine+1,
+	copy_replace(Board, NewBoard, NextLine, InitialColumn, InitialLine, FinalColumn, FinalLine, Piece).
+
+/* Replaces position Pos with Num and returns the next list */
+/*replace_pos([], NewLine, CurrentPos, Pos, Num).
+
+replace_pos([Piece|Line], NewLine, CurrentPos, CurrentPos, Num) :-	
+	NextPos is CurrentPos+1,
+	replace_pos(Line, [NewLine|Num], NextPos, Pos, Num).*//*
+
+replace_pos([Piece|Line], NewLine, CurrentPos, Pos, Num) :-
+	NextPos is CurrentPos+1,
+	replace_pos(Line, [NewLine|Piece], NextPos, Pos, Num).
+*/
+/*=========================================================================================================================================*/
+
+print2d([]).
+print2d([Line|Board]) :- printline(Line), nl, print2d(Board).
+
+printline([]).
+printline([Elem|Line]) :- write(Elem), printline(Line).
 
 
 /*=========================================================================================================================================*/
