@@ -1,9 +1,12 @@
 /*========================================================================================================================================*/
 
+
 /* PLAY */
 cage :-
 	load_libraries,
-	write('***** WELCOME TO CAGE *****'), nl,
+	write('*------------------------*'), nl,
+    write('*    WELCOME TO CAGE    !*'), nl,
+    write('*------------------------*'), nl,
 	main_menu.
 
 
@@ -15,11 +18,13 @@ main_menu :-
 	write('4. Exit'), nl, nl,
 	write('What do you want to do? '),
 	get_code(Option), skip_line,
-	O is Option-49,
-	play_mode(O).
+	write(Option),
+	HvH_Option is Option-48,
+	play_mode(HvH_Option).
 
 
-play_mode(0) :-
+/* PLAY MODE Human vs Human*/
+play_mode(1) :-
 	play(1, [[2,1,2,1,2,1,2,1,2,1],
 		  	 [1,2,1,2,1,2,1,2,1,2],
 		 	 [2,1,2,1,2,1,2,1,2,1],
@@ -32,47 +37,29 @@ play_mode(0) :-
 		 	 [1,2,1,2,1,2,1,2,1,2]]).
 
 
+/* Play prints the initial board (Player represents the player that begins the game) */
+play(Player, Board) :-
+	write('Player 1 will start the game!'), nl,
+	print_board(10, Board), nl,
+	play_hvh(Player, Board).
 
-/* First argument -> player */
-play(1, Board) :-
-	print_board(10, Board),
-	nl,
-	write('Player1'),
-	nl,
+
+/* Play the game in Human vs Human mode */
+play_hvh(Player, Board) :-
+	write('Player'), write(Player), nl,
 	write('From '),
 	get_code(InitialColumn),
-	get_code(InitialLine),
-	skip_line,
+	get_code(InitialLine), skip_line,
 	write('To   '),
 	get_code(FinalColumn),
-	get_code(FinalLine),
-	skip_line,
+	get_code(FinalLine), skip_line,
 	IC is InitialColumn-65,
 	FC is FinalColumn-65,
 	IL is InitialLine-49,
 	FL is FinalLine-49,
 	move(Board, NewBoard, IC, IL, FC, FL),
-	play(2, NewBoard).
-
-play(2, Board) :-
-	print_board(10, Board),
-	nl,
-	write('Player2'),
-	nl,
-	write('From '),
-	get_code(InitialColumn),
-	get_code(InitialLine),
-	skip_line,
-	write('To   '),
-	get_code(FinalColumn),
-	get_code(FinalLine),
-	skip_line,
-	IC is InitialColumn-65,
-	FC is FinalColumn-65,
-	IL is InitialLine-49,
-	FL is FinalLine-49,
-	move(Board, NewBoard, IC, IL, FC, FL),
-	play(1, NewBoard).
+	print_board(10, NewBoard), nl,
+	(Player == 1) -> play_hvh(2, NewBoard); play_hvh(1, NewBoard).
 
 /*========================================================================================================================================*/
 
@@ -118,9 +105,9 @@ change_line_position([Position|Line], [Piece|NewLine], Count, ColumnNr, Piece) :
 /* parameters: Size - of list; Board - list that represents the board */
 print_board(Size, Board) :-
 	nl, 
-	print_letters(Size,Size),
+	print_letters(Size, Size),
 	print_top_lines(Size),
-	print_squares(1,Size,Board),
+	print_squares(1, Size, Board),
 	print_bottom_lines(Size).
 
 
@@ -134,8 +121,7 @@ print_letter(1, Size) :-
 	write(' '),
 	C is 65+Size-1,
 	put_code(C),
-	write(' '),
-	nl.
+	write(' '), nl.
 
 print_letter(Line, Size) :-
 	write(' '),
@@ -156,8 +142,7 @@ print_top_lines(Column) :-
 print_top_line(1) :-
 	horiz,
 	horiz,
-	rt_corner,
-	nl.
+	rt_corner, nl.
 
 print_top_line(Column) :-
 	horiz,
@@ -177,8 +162,7 @@ print_bottom_lines(Column) :-
 print_bottom_line(1) :-
 	horiz,
 	horiz,
-	rb_corner,
-	nl.
+	rb_corner, nl.
 
 print_bottom_line(Column) :-
 	horiz,
@@ -212,8 +196,7 @@ print_middle_lines(Size) :-
 print_middle_line(1) :- 
 	horiz,
 	horiz,
-	right_con,
-	nl.
+	right_con, nl.
 
 print_middle_line(Size) :- 
 	horiz,
@@ -225,13 +208,12 @@ print_middle_line(Size) :-
 
 /* Print the pieces and the vertical lines */
 print_pieces(Currline, Nrline, Line) :-
-	Currline >=10,
+	Currline >= 10,
 	write(' '),
 	write(Currline),
 	write(' '),
 	print_piece(Line),
-	vert,
-	nl.
+	vert, nl.
 
 print_pieces(Currline, Nrline, Line) :-
 	Currline <10,
@@ -239,8 +221,7 @@ print_pieces(Currline, Nrline, Line) :-
 	write(Currline),
 	write(' '),
 	print_piece(Line),
-	vert,
-	nl.
+	vert, nl.
 
 print_piece([]).
 
