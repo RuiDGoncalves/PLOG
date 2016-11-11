@@ -7,9 +7,9 @@ cage :-
 	nl,
 	write('*****************************************'), nl,
 	write('**                                     **'), nl,
-    write('**           WELCOME TO CAGE           **'), nl,
-    write('**                                     **'), nl,
-    write('*****************************************'), nl,
+	write('**           WELCOME TO CAGE           **'), nl,
+	write('**                                     **'), nl,
+	write('*****************************************'), nl,
 	main_menu.
 
 
@@ -30,15 +30,15 @@ main_menu :-
 
 /* Declaration of the initial board */
 board(B) :- B=[[2,1,2,1,2,1,2,1,2,1],
-		  	   [1,2,1,2,1,2,1,2,1,2],
-		 	   [2,1,2,1,2,1,2,1,2,1],
-		 	   [1,2,1,2,1,2,1,2,1,2],
-		 	   [2,1,2,1,2,1,2,1,2,1],
-		 	   [1,2,1,2,1,2,1,2,1,2],
-		 	   [2,1,2,1,2,1,2,1,2,1],
-		 	   [1,2,1,2,1,2,1,2,1,2],
-		 	   [2,1,2,1,2,1,2,1,2,1],
-		 	   [1,2,1,2,1,2,1,2,1,2]].
+		[1,2,1,2,1,2,1,2,1,2],
+		[2,1,2,1,2,1,2,1,2,1],
+		[1,2,1,2,1,2,1,2,1,2],
+		[2,1,2,1,2,1,2,1,2,1],
+		[1,2,1,2,1,2,1,2,1,2],
+		[2,1,2,1,2,1,2,1,2,1],
+		[1,2,1,2,1,2,1,2,1,2],
+		[2,1,2,1,2,1,2,1,2,1],
+		[1,2,1,2,1,2,1,2,1,2]].
 
 
 /* PLAY MODE Human vs Human*/
@@ -54,19 +54,62 @@ play(Player, Board) :-
 	play_hvh(Player, Board).
 
 
-/* Play the game in Human vs Human mode, starting with Player1 */
-play_hvh(Player, Board) :-
-	write('Player'), write(Player), nl,
-	write('From '),
-	get_code(InitialColumn),
-	get_code(InitialLine), skip_line,
-	write('To   '),
-	get_code(FinalColumn),
-	get_code(FinalLine), skip_line,
-	translate(InitialColumn, FinalColumn, InitialLine, FinalLine, IC, FC, IL, FL),
-	move(Board, NewBoard, IC, IL, FC, FL),
+/* Play the game in Human vs Human mode */
+play_hvh(1, Board) :-
+	write('Player'), write(1), nl,
+	read_position_from(1, Board, InitialColumn, InitialLine),
+	%adjoin, centering, jumping functions -> (Board, PiecePosition, AvailableMoves) put in AvailableMoves the list of positions of the moves
+	read_position_to(1, Board, FinalColumn, FinalLine),
+	%check if position is member of any of the lists
+	%if its jumping move to the position of the piece to be jumped over and then to the next position
+	%if its from centering or jumping give turn to other player
+	%if its from adjoin call adjoin, centering and jumpimp for every position until at least one of the lists isn't empty
+	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
 	print_board(10, NewBoard), nl,
-	((Player == 1) -> play_hvh(2, NewBoard); play_hvh(1, NewBoard)).
+	play_hvh(2, NewBoard).
+
+play_hvh(2, Board) :-
+	write('Player'), write(2), nl,
+	read_position_from(2, Board, InitialColumn, InitialLine),
+	read_position_to(2, Board, FinalColumn, FinalLine),
+	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
+	print_board(10, NewBoard), nl,
+	play_hvh(1, NewBoard).
+
+/*========================================================================================================================================*/
+
+/* READ POSITION */
+
+read_position_from(Player, Board, Column, Line) :-
+	write('From '),
+	get_code(C),
+	get_code(L), skip_line,
+	C > 64, C < 75,
+	L > 47, L < 58,
+	CNumber is C - 65,
+	LNumber is L - 48,
+	nth0(LNumber, Board, NewLine),
+	nth0(CNumber, NewLine, Piece),
+	Piece =:= Player,
+	Column is CNumber,
+	Line is LNumber.
+	
+read_position_from(Player, Board, Column, Line) :- read_position_from(Player, Board, Column, Line).
+	
+
+read_position_to(Player, Board, Column, Line) :-
+	write('To   '),
+	get_code(C),
+	get_code(L), skip_line,
+	C > 64, C < 75,
+	L > 47, L < 58,
+	CNumber is C - 65,
+	LNumber is L - 48,
+	Column is CNumber,
+	Line is LNumber.
+	
+read_position_to(Player, Board, Column, Line) :- read_position_to(Player, Board, Column, Line).
+
 
 /*==============================================================================================================================*/
 
@@ -117,16 +160,16 @@ change_line_position([Position|Line], [Position|NewLine], Count, ColumnNr, Piece
 change_line_position([Position|Line], [Piece|NewLine], Count, ColumnNr, Piece) :-
 	NextCount is Count+1,
 	change_line_position(Line, NewLine, NextCount, ColumnNr, Piece).
-/*==============================================================================================================================*/
+/*========================================================================================================================================*/
 
 /* PRINT BOARD */
 /* Print board */
 /* parameters: Size - of list; Board - list that represents the board */
 print_board(Size, Board) :-
-	nl,
+	nl, 
 	print_letters(Size, Size),
 	print_top_lines(Size),
-	print_squares(1, Size, Board),
+	print_squares(0, Size, Board),
 	print_bottom_lines(Size).
 
 
@@ -194,9 +237,9 @@ print_bottom_line(Column) :-
 /* Print the middle of the board */
 print_squares(Currentline, Size, []).
 
-print_squares(1, Size, [Line|Board]) :-
-	print_pieces(1, Size, Line),
-	print_squares(2, Size, Board).
+print_squares(0, Size, [Line|Board]) :-
+	print_pieces(0, Size, Line),
+	print_squares(1, Size, Board).
 
 print_squares(Currentline, Size, [Line|Board]) :-
 	print_middle_lines(Size),
@@ -227,15 +270,6 @@ print_middle_line(Size) :-
 
 /* Print the pieces and the vertical lines */
 print_pieces(Currline, Nrline, Line) :-
-	Currline >= 10,
-	write(' '),
-	write(Currline),
-	write(' '),
-	print_piece(Line),
-	vert, nl.
-
-print_pieces(Currline, Nrline, Line) :-
-	Currline <10,
 	write('  '),
 	write(Currline),
 	write(' '),
@@ -262,13 +296,6 @@ print_piece([2|Line]) :-
 	print_piece(Line).
 
 
-/* Transform the ASCII codes of the numbers and letters representing the lines and columns to indexes */
-translate(InitCol, FinalCol, InitLine, FinalCol, IC, FC, IL, FL) :-
-	IC is InitialColumn-65,
-	FC is FinalColumn-65,
-	IL is InitialLine-49,
-	FL is FinalLine-49.
-
 /* Characteres */
 
 lt_corner :- put_code(9484).
@@ -287,21 +314,8 @@ black_circle :- put_code(11044).
 white_circle :- put_code(11093).%put_code(9711).
 
 
-/*==============================================================================================================================*/
+/*========================================================================================================================================*/
 
 /* LIBRARIES */
 
 load_libraries :- use_module(library(lists)).
-
-
-
-
-
-
-
-
-
-
-
-
-
