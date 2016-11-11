@@ -1,50 +1,60 @@
-/*========================================================================================================================================*/
+/*==============================================================================================================================*/
 
 
 /* PLAY */
 cage :-
 	load_libraries,
-	write('*------------------------*'), nl,
-    write('*    WELCOME TO CAGE    !*'), nl,
-    write('*------------------------*'), nl,
+	nl,
+	write('*****************************************'), nl,
+	write('**                                     **'), nl,
+    write('**           WELCOME TO CAGE           **'), nl,
+    write('**                                     **'), nl,
+    write('*****************************************'), nl,
 	main_menu.
 
 
 /* MAIN MENU */
-main_menu :- 
-	write('1. Play Human Vs. Human'), nl,
-	write('2. Play Human Vs. Computer'), nl,
-	write('3. Play Computer Vs. Computer'), nl,
-	write('4. Exit'), nl, nl,
-	write('What do you want to do? '),
+main_menu :-
+	write('*                                       *'), nl,
+	write('*   What do you want to do?             *'), nl,
+	write('*      1. Play Human Vs. Human          *'), nl,
+	write('*      2. Play Human Vs. Computer       *'), nl,
+	write('*      3. Play Computer Vs. Computer    *'), nl,
+	write('*      4. Exit                          *'), nl,
+	write('*                                       *'), nl,
+	write('*****************************************'), nl, nl,
 	get_code(Option), skip_line,
-	write(Option),
 	HvH_Option is Option-48,
 	play_mode(HvH_Option).
 
 
+/* Declaration of the initial board */
+board(B) :- B=[[2,1,2,1,2,1,2,1,2,1],
+		  	   [1,2,1,2,1,2,1,2,1,2],
+		 	   [2,1,2,1,2,1,2,1,2,1],
+		 	   [1,2,1,2,1,2,1,2,1,2],
+		 	   [2,1,2,1,2,1,2,1,2,1],
+		 	   [1,2,1,2,1,2,1,2,1,2],
+		 	   [2,1,2,1,2,1,2,1,2,1],
+		 	   [1,2,1,2,1,2,1,2,1,2],
+		 	   [2,1,2,1,2,1,2,1,2,1],
+		 	   [1,2,1,2,1,2,1,2,1,2]].
+
+
 /* PLAY MODE Human vs Human*/
 play_mode(1) :-
-	play(1, [[2,1,2,1,2,1,2,1,2,1],
-		  	 [1,2,1,2,1,2,1,2,1,2],
-		 	 [2,1,2,1,2,1,2,1,2,1],
-		 	 [1,2,1,2,1,2,1,2,1,2],
-		 	 [2,1,2,1,2,1,2,1,2,1],
-		 	 [1,2,1,2,1,2,1,2,1,2],
-		 	 [2,1,2,1,2,1,2,1,2,1],
-		 	 [1,2,1,2,1,2,1,2,1,2],
-		 	 [2,1,2,1,2,1,2,1,2,1],
-		 	 [1,2,1,2,1,2,1,2,1,2]]).
-
+	board(B),
+	play(1, B).
 
 /* Play prints the initial board (Player represents the player that begins the game) */
 play(Player, Board) :-
-	write('Player 1 will start the game!'), nl,
+	nl,
+	write(' -> Player 1 will start the game!'), nl,
 	print_board(10, Board), nl,
 	play_hvh(Player, Board).
 
 
-/* Play the game in Human vs Human mode */
+/* Play the game in Human vs Human mode, starting with Player1 */
 play_hvh(Player, Board) :-
 	write('Player'), write(Player), nl,
 	write('From '),
@@ -53,24 +63,33 @@ play_hvh(Player, Board) :-
 	write('To   '),
 	get_code(FinalColumn),
 	get_code(FinalLine), skip_line,
-	IC is InitialColumn-65,
-	FC is FinalColumn-65,
-	IL is InitialLine-49,
-	FL is FinalLine-49,
+	translate(InitialColumn, FinalColumn, InitialLine, FinalLine, IC, FC, IL, FL),
 	move(Board, NewBoard, IC, IL, FC, FL),
 	print_board(10, NewBoard), nl,
-	(Player == 1) -> play_hvh(2, NewBoard); play_hvh(1, NewBoard).
+	((Player == 1) -> play_hvh(2, NewBoard); play_hvh(1, NewBoard)).
 
-/*========================================================================================================================================*/
+/*==============================================================================================================================*/
 
 /* MOVE PIECE */
 
 /* Move piece */
 move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine) :-
-	nth0(InitialLine, Board, NewLine1), /* get the line of the piece */
-	nth0(InitialColumn, NewLine1, Piece), /* get the piece id to be moved */
+	get_piece(Board, InitialLine, InitialColumn, Piece),
 	change_board_position(Board, NewBoardTemp, 0, InitialColumn, InitialLine, 0),
 	change_board_position(NewBoardTemp, NewBoard, 0, FinalColumn, FinalLine, Piece).
+
+
+/* Get the Piece (0, 1 or 2) that is in a certain Line and Column of the Board */
+get_piece(Board, Line, Column, Piece) :-
+	nth0(Line, Board, PieceLine), /* get the line of the piece */
+	nth0(Column, PieceLine, Piece). /* get the piece ID to be moved */
+
+
+/*  */
+restriction1(Piece, Board, InitialColumn, InitialLine, FinalColumn, FinalLine) :-
+	((InitialLine < FinalLine, InitialColumn == FinalColumn) -> 
+		(get_piece(Board, FinalLine, FinalColumn-1, Piece1), (Piece1 == Piece)->fail).
+
 
 
 /* Changes the position ColumnNr, LineNr of a 2d list to Piece */
@@ -98,13 +117,13 @@ change_line_position([Position|Line], [Position|NewLine], Count, ColumnNr, Piece
 change_line_position([Position|Line], [Piece|NewLine], Count, ColumnNr, Piece) :-
 	NextCount is Count+1,
 	change_line_position(Line, NewLine, NextCount, ColumnNr, Piece).
-/*========================================================================================================================================*/
+/*==============================================================================================================================*/
 
 /* PRINT BOARD */
 /* Print board */
 /* parameters: Size - of list; Board - list that represents the board */
 print_board(Size, Board) :-
-	nl, 
+	nl,
 	print_letters(Size, Size),
 	print_top_lines(Size),
 	print_squares(1, Size, Board),
@@ -243,6 +262,13 @@ print_piece([2|Line]) :-
 	print_piece(Line).
 
 
+/* Transform the ASCII codes of the numbers and letters representing the lines and columns to indexes */
+translate(InitCol, FinalCol, InitLine, FinalCol, IC, FC, IL, FL) :-
+	IC is InitialColumn-65,
+	FC is FinalColumn-65,
+	IL is InitialLine-49,
+	FL is FinalLine-49.
+
 /* Characteres */
 
 lt_corner :- put_code(9484).
@@ -261,7 +287,7 @@ black_circle :- put_code(11044).
 white_circle :- put_code(11093).%put_code(9711).
 
 
-/*========================================================================================================================================*/
+/*==============================================================================================================================*/
 
 /* LIBRARIES */
 
