@@ -55,26 +55,19 @@ play(Player, Board) :-
 
 
 /* Play the game in Human vs Human mode */
-play_hvh(1, Board) :-
-	write('Player'), write(1), nl,
-	read_position_from(1, Board, InitialColumn, InitialLine),
+play_hvh(Player, Board) :-
+	write('Player'), write(Player), nl,
+	read_position_from(Player, Board, InitialColumn, InitialLine),
 	%adjoin, centering, jumping functions -> (Board, PiecePosition, AvailableMoves) put in AvailableMoves the list of positions of the moves
-	read_position_to(1, Board, FinalColumn, FinalLine),
+	read_position_to(Player, Board, FinalColumn, FinalLine),
 	%check if position is member of any of the lists
 	%if its jumping move to the position of the piece to be jumped over and then to the next position
 	%if its from centering or jumping give turn to other player
 	%if its from adjoin call adjoin, centering and jumpimp for every position until at least one of the lists isn't empty
 	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
 	print_board(10, NewBoard), nl,
-	play_hvh(2, NewBoard).
+	((Player == 1) -> play_hvh(2, NewBoard); play_hvh(1, NewBoard)).
 
-play_hvh(2, Board) :-
-	write('Player'), write(2), nl,
-	read_position_from(2, Board, InitialColumn, InitialLine),
-	read_position_to(2, Board, FinalColumn, FinalLine),
-	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
-	print_board(10, NewBoard), nl,
-	play_hvh(1, NewBoard).
 
 /*========================================================================================================================================*/
 
