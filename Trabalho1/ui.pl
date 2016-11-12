@@ -70,10 +70,10 @@ play_hvh(Player, Board) :-
 	write('Player'), write(Player), nl,
 	read_position_from(Player, Board, InitialColumn, InitialLine),
 	%adjoin, centering, jumping functions -> (Board, PiecePosition, AvailableMoves) put in AvailableMoves the list of positions of the moves
-	%get_jump_positions(Player, Board, InitialColumn, InitialLine, JumpMoves),
+	get_jump_positions(Player, Board, InitialColumn, InitialLine, JumpMoves),
 	get_adjoin_positions(Player, Board, InitialColumn, InitialLine, AdjoinMoves),
 	%write(JumpMoves), nl,
-	write(AdjoinMoves), nl,
+	%write(AdjoinMoves), nl,
 
 	read_position_to(Player, Board, FinalColumn, FinalLine),
 	%check if position is member of any of the lists
@@ -270,14 +270,7 @@ check_jump_right(Player, Board, Column, Line, Other, Empty, Right) :- Right=[].
 
 get_adjoin_positions(Player, Board, Column, Line, AvailableMoves) :-
 	PL is Line-1, NL is Line+1, PC is Column-1, NC is Column+1,
-	get_piece(Board, PL, Column, Piece1),
-	(Piece1 =:= 0; Piece1 =:= 3),
-	get_piece(Board, NL, Column, Piece2),
-	(Piece2 =:= 0; Piece2 =:= 3),
-	get_piece(Board, Line, NC, Piece3),
-	(Piece3 =:= 0; Piece3 =:= 3),
-	get_piece(Board, Line, PC, Piece4),
-	(Piece4 =:= 0; Piece4 =:= 3),
+	check_no_ortogonal(Board, Column, Line),
 	get_adjacency(Player, Board, NC, NL, BR),
 	get_adjacency(Player, Board, NC, Line, R),
 	get_adjacency(Player, Board, NC, PL, TR),
@@ -290,6 +283,19 @@ get_adjoin_positions(Player, Board, Column, Line, AvailableMoves) :-
 	append(Lists, AvailableMoves).
 
 get_adjoin_positions(Player, Board, Column, Line, AvailableMoves) :- AvailableMoves=[].
+
+
+check_no_ortogonal(Board, Column, Line) :-
+	PL is Line-1, NL is Line+1, PC is Column-1, NC is Column+1,
+	get_piece(Board, PL, Column, Piece1), !,
+	(Piece1 =:= 0; Piece1 =:= 3),
+	get_piece(Board, NL, Column, Piece2), !,
+	(Piece2 =:= 0; Piece2 =:= 3),
+	get_piece(Board, Line, NC, Piece3), !,
+	(Piece3 =:= 0; Piece3 =:= 3),
+	get_piece(Board, Line, PC, Piece4), !,
+	(Piece4 =:= 0; Piece4 =:= 3).
+
 
 get_adjacency(Player, Board, Column, Line, Position) :-
 	get_piece(Board, Line, Column, Piece0),
