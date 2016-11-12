@@ -5,27 +5,36 @@
 cage :-
 	load_libraries,
 	nl,
-	write('*****************************************'), nl,
-	write('**                                     **'), nl,
-	write('**           WELCOME TO CAGE           **'), nl,
-	write('**                                     **'), nl,
-	write('*****************************************'), nl,
+	double_lt_corner, double_horiz(37), double_rt_corner, nl,
+	double_vert, space(37), double_vert, nl,
+	double_vert, space(11), write('WELCOME TO CAGE'), space(11), double_vert, nl,
+	double_vert, space(37), double_vert, nl,
+	double_left_con, double_horiz(37), double_right_con, nl,
 	main_menu.
 
 
 /* MAIN MENU */
 main_menu :-
-	write('*                                       *'), nl,
-	write('*   What do you want to do?             *'), nl,
-	write('*      1. Play Human Vs. Human          *'), nl,
-	write('*      2. Play Human Vs. Computer       *'), nl,
-	write('*      3. Play Computer Vs. Computer    *'), nl,
-	write('*      4. Exit                          *'), nl,
-	write('*                                       *'), nl,
-	write('*****************************************'), nl, nl,
-	get_code(Option), skip_line,
+	double_vert, space(37), double_vert, nl,
+	double_vert, space(13), write('Game Modes'), space(14), double_vert, nl,
+	double_vert, space(37), double_vert, nl,
+	double_vert, space(8), write('1. Player vs. Player'), space(9), double_vert, nl,
+	double_vert, space(8), write('2. Player vs. CPU'), space(12), double_vert, nl,
+	double_vert, space(8), write('3. CPU vs. CPU'), space(15), double_vert, nl,
+	double_vert, space(37), double_vert, nl,
+	double_lb_corner, double_horiz(37), double_rb_corner, nl,
+	get_menu_input(Option, 1, 4),
 	HvH_Option is Option-48,
 	play_mode(HvH_Option).
+
+
+get_menu_input(Option, Min, Max) :-
+	get_code(O), skip_line,
+	O > 47+Min, O < 47+Max,
+	Option is O.
+
+get_menu_input(Option, Min, Max) :- get_menu_input(Option, Min, Max).
+
 
 
 /* Declaration of the initial board */
@@ -67,7 +76,7 @@ board(B) :- B=[[2,1,2,1,2,1,2,1,2,1],
 /* PLAY MODE Human vs Human*/
 play_mode(1) :-
 	board(B),
-	nl,
+	nl, nl,
 	write('Player1 -> '), black_circle, write('   '),
 	write('Player2 -> '), white_circle, nl,
 	print_board(10, B), nl,
@@ -612,8 +621,23 @@ left_con :- put_code(9500).
 right_con :- put_code(9508).
 middle :- put_code(9532).
 
+double_lt_corner :- put_code(9556).
+double_rt_corner :- put_code(9559).
+double_lb_corner :- put_code(9562).
+double_rb_corner :- put_code(9565).
+double_vert :- put_code(9553).
+double_horiz :- put_code(9552).
+double_left_con :- put_code(9568).
+double_right_con :- put_code(9571).
+
 black_circle :- put_code(11044).
 white_circle :- put_code(11093).%put_code(9711).
+
+double_horiz(0).
+double_horiz(N) :- double_horiz, N1 is N-1, double_horiz(N1).
+
+space(0).
+space(N) :- write(' '), N1 is N-1, space(N1).
 
 
 /*========================================================================================================================================*/
