@@ -29,18 +29,18 @@ main_menu :-
 
 
 /* Declaration of the initial board */
-board(B) :- B=[[0,0,0,0,0,0,0,0,0,0],
+board(B) :- /*B=[[0,0,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0,0,0,2],
-		[0,0,0,0,0,0,0,0,2,0],
-		[0,0,0,0,0,0,1,0,0,0],
-		[0,0,0,0,0,0,2,0,2,0],
-		[0,0,0,0,0,2,0,2,0,0],
+		[0,0,0,0,0,0,0,0,1,2],
 		[0,0,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0,0,0,0]]. 
-
-	/*
+		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0]].
+*/
+	
 	B=[[2,1,2,1,2,1,2,1,2,1],
 		[1,2,1,2,1,2,1,2,1,2],
 		[2,1,2,1,2,1,2,1,2,1],
@@ -50,7 +50,7 @@ board(B) :- B=[[0,0,0,0,0,0,0,0,0,0],
 		[2,1,2,1,2,1,2,1,2,1],
 		[1,2,1,2,1,2,1,2,1,2],
 		[2,1,2,1,2,1,2,1,2,1],
-		[1,2,1,2,1,2,1,2,1,2]].*/
+		[1,2,1,2,1,2,1,2,1,2]].
 
 	/*B=[[2,1,2,1,2,1,2,1,2,1],
 		[1,2,1,2,1,2,1,2,1,2],
@@ -77,15 +77,12 @@ play_mode(1) :-
 play_hvh(Player, Board) :-
 	write('Player'), write(Player), nl,
 	read_position_from(Player, Board, InitialColumn, InitialLine, JumpMoves, AdjoinMoves, CenterMoves),
-	%write(JumpMoves), nl,
-	%write(AdjoinMoves), nl,
-	%write(CenterMoves), nl,
+
+	write(JumpMoves), nl,
+	write(AdjoinMoves), nl,
+	write(CenterMoves), nl,
 
 	read_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, AdjoinMoves, CenterMoves, Move),
-	%check if position is member of any of the lists
-	%if its jumping move to the position of the piece to be jumped over and then to the next position
-	%if its from centering or jumping give turn to other player
-	%if its from adjoin call adjoin, centering and jumpimp for every position until at least one of the lists isn't empty
 	
 	Other is ((Player mod 2) + 1),
 	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
@@ -203,14 +200,6 @@ get_piece(Board, Line, Column, Piece) :-
 
 get_piece(Board, Line, Column, Piece) :- Piece is 3.
 
-
-/* 
-restriction1(Piece, Board, InitialColumn, InitialLine, FinalColumn, FinalLine) :-
-	((InitialLine < FinalLine, InitialColumn == FinalColumn) -> 
-		(get_piece(Board, FinalLine, FinalColumn-1, Piece1), (Piece1 == Piece)->fail).*/
-
-
-
 /* Changes the position ColumnNr, LineNr of a 2d list to Piece */
 change_board_position([], [], Count, ColumnNr, LineNr, Piece).
 
@@ -240,6 +229,20 @@ change_line_position([Position|Line], [Piece|NewLine], Count, ColumnNr, Piece) :
 
 /*========================================================================================================================================*/
 
+/* RESTRICTIONS */
+
+restriction1(Player, Board, Column, Line) :-
+	Right is Column+1, Left is Column-1, Top is Line-1, Bottom is Line+1,
+	get_piece(Board, Top, Column, Piece0) , !,
+	Piece0 \= Player,
+	get_piece(Board, Bottom, Column, Piece1), !,
+	Piece1 \= Player,
+	get_piece(Board, Line, Right, Piece2), !,
+	Piece2 \= Player,
+	get_piece(Board, Line, Left, Piece3), !,
+	Piece3 \= Player.
+
+/*========================================================================================================================================*/
 /* JUMP */
 
 get_jump_positions(Player, Board, Column, Line, AvailableMoves) :-
@@ -263,6 +266,7 @@ check_jump_top(Player, Board, Column, 1, Other, Empty, Top) :-
 
 check_jump_top(Player, Board, Column, Line, Other, Empty, Top) :-
 	L1 is Line-1, L2 is Line-2,
+	restriction1(Player, Board, Column, L2),
 	get_piece(Board, L1, Column, Jumped),
 	Jumped =:= Other,
 	get_piece(Board, L2, Column, Dest),
@@ -282,6 +286,7 @@ check_jump_bottom(Player, Board, Column, 8, Other, Empty, Bottom) :-
 
 check_jump_bottom(Player, Board, Column, Line, Other, Empty, Bottom) :-
 	L1 is Line+1, L2 is Line+2,
+	restriction1(Player, Board, Column, L2),
 	get_piece(Board, L1, Column, Jumped),
 	Jumped =:= Other,
 	get_piece(Board, L2, Column, Dest),
@@ -301,6 +306,7 @@ check_jump_left(Player, Board, 1, Line, Other, Empty, Left) :-
 
 check_jump_left(Player, Board, Column, Line, Other, Empty, Left) :-
 	C1 is Column-1, C2 is Column-2,
+	restriction1(Player, Board, C2, Line),
 	get_piece(Board, Line, C1, Jumped),
 	Jumped =:= Other,
 	get_piece(Board, Line, C2, Dest),
@@ -320,6 +326,7 @@ check_jump_right(Player, Board, 8, Line, Other, Empty, Right) :-
 
 check_jump_right(Player, Board, Column, Line, Other, Empty, Right) :-
 	C1 is Column+1, C2 is Column+2,
+	restriction1(Player, Board, C2, Line),
 	get_piece(Board, Line, C1, Jumped),
 	Jumped =:= Other,
 	get_piece(Board, Line, C2, Dest),
@@ -366,6 +373,7 @@ check_no_ortogonal(Board, Column, Line) :-
 get_adjacency(Player, Board, Column, Line, Position) :-
 	get_piece(Board, Line, Column, Piece0),
 	Piece0 =:= 0,
+	restriction1(Player, Board, Column, Line),
 	Other is ((Player mod 2) + 1),
 	PL is Line-1, NL is Line+1, PC is Column-1, NC is Column+1,
 	get_piece(Board, PL, Column, Piece1),
@@ -400,6 +408,7 @@ get_center_positions(Player, Board, Column, Line, AvailableMoves) :-
 get_closer(Player, Board, Dist, Column, Line, Position) :-
 	get_piece(Board, Line, Column, Piece),
 	Piece =:= 0,
+	restriction1(Player, Board, Column, Line),
 	NewDist is sqrt(abs(Column-4.5)^2+abs(Line-4.5)^2),
 	NewDist < Dist,
 	P is Line*10+Column,	
