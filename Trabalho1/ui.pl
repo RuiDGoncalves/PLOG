@@ -68,14 +68,10 @@ play(Player, Board) :-
 /* Play the game in Human vs Human mode */
 play_hvh(Player, Board) :-
 	write('Player'), write(Player), nl,
-	read_position_from(Player, Board, InitialColumn, InitialLine),
-	%adjoin, centering, jumping functions -> (Board, PiecePosition, AvailableMoves) put in AvailableMoves the list of positions of the moves
-	get_jump_positions(Player, Board, InitialColumn, InitialLine, JumpMoves),
-	get_adjoin_positions(Player, Board, InitialColumn, InitialLine, AdjoinMoves),
-	get_center_positions(Player, Board, InitialColumn, InitialLine, CenterMoves),
+	read_position_from(Player, Board, InitialColumn, InitialLine, JumpMoves, AdjoinMoves, CenterMoves),
 	%write(JumpMoves), nl,
 	%write(AdjoinMoves), nl,
-	write(CenterMoves), nl,
+	%write(CenterMoves), nl,
 
 	read_position_to(Player, Board, FinalColumn, FinalLine),
 	%check if position is member of any of the lists
@@ -91,7 +87,7 @@ play_hvh(Player, Board) :-
 
 /* READ POSITION */
 
-read_position_from(Player, Board, Column, Line) :-
+read_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves) :-
 	write('From '),
 	get_code(C),
 	get_code(L), skip_line,
@@ -101,10 +97,18 @@ read_position_from(Player, Board, Column, Line) :-
 	LNumber is L - 48,
 	get_piece(Board, LNumber, CNumber, Piece),
 	Piece =:= Player,
+	get_jump_positions(Player, Board, CNumber, LNumber, JM),
+	get_adjoin_positions(Player, Board, CNumber, LNumber, AM),
+	get_center_positions(Player, Board, CNumber, LNumber, CM),
+	Pos is LNumber*10+CNumber,
+	(JM \= []; AM \= []; CM \= []),
 	Column is CNumber,
-	Line is LNumber.
+	Line is LNumber,
+	JumpMoves=JM,
+	AdjoinMoves=AM,
+	CenterMoves=CM.
 	
-read_position_from(Player, Board, Column, Line) :- read_position_from(Player, Board, Column, Line).
+read_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves) :- read_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves).
 	
 
 read_position_to(Player, Board, Column, Line) :-
