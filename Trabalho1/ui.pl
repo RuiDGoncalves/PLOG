@@ -72,8 +72,10 @@ play_hvh(Player, Board) :-
 	%adjoin, centering, jumping functions -> (Board, PiecePosition, AvailableMoves) put in AvailableMoves the list of positions of the moves
 	get_jump_positions(Player, Board, InitialColumn, InitialLine, JumpMoves),
 	get_adjoin_positions(Player, Board, InitialColumn, InitialLine, AdjoinMoves),
+	get_center_positions(Player, Board, InitialColumn, InitialLine, CenterMoves),
 	%write(JumpMoves), nl,
 	%write(AdjoinMoves), nl,
+	write(CenterMoves), nl,
 
 	read_position_to(Player, Board, FinalColumn, FinalLine),
 	%check if position is member of any of the lists
@@ -311,6 +313,39 @@ get_adjacency(Player, Board, Column, Line, Position) :-
 	Position=[P].
 
 get_adjacency(Player, Board, Column, Line, Position) :- Position=[].
+
+
+/*========================================================================================================================================*/
+
+/* CENTERING */
+
+get_center_positions(Player, Board, Column, Line, AvailableMoves) :-
+	PL is Line-1, NL is Line+1, PC is Column-1, NC is Column+1,
+	Dist is sqrt(abs(Column-4.5)^2+abs(Line-4.5)^2),
+	get_closer(Player, Board, Dist, NC, NL, BR),
+	get_closer(Player, Board, Dist, NC, Line, R),
+	get_closer(Player, Board, Dist, NC, PL, TR),
+	get_closer(Player, Board, Dist, Column, NL, B),
+	get_closer(Player, Board, Dist, Column, PL, T),
+	get_closer(Player, Board, Dist, PC, NL, BL),
+	get_closer(Player, Board, Dist, PC, Line, L),
+	get_closer(Player, Board, Dist, PC, PL, TL),
+	Lists=[BR,R,TR,B,T,BL,L,TL],
+	append(Lists, AvailableMoves).
+
+get_closer(Player, Board, Dist, Column, Line, Position) :-
+	get_piece(Board, Line, Column, Piece),
+	Piece =:= 0,
+	NewDist is sqrt(abs(Column-4.5)^2+abs(Line-4.5)^2),
+	NewDist < Dist,
+	P is Line*10+Column,	
+	Position=[P].
+
+get_closer(Player, Board, Dist, Column, Line, Position) :- Position=[].
+
+
+	
+
 
 /*========================================================================================================================================*/
 
