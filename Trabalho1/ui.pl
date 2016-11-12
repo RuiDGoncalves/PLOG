@@ -30,13 +30,13 @@ main_menu :-
 
 /* Declaration of the initial board */
 board(B) :- B=[[0,0,0,0,0,0,0,0,0,0],
-		[0,0,0,2,1,2,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,2,0,1,2],
 		[0,0,0,0,0,0,0,0,0,0],
-		[0,0,1,0,0,0,0,2,0,0],
-		[0,0,2,0,0,0,0,0,1,0],
+		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,2,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,1,2],
 		[0,0,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0]].
 
@@ -77,11 +77,6 @@ play_mode(1) :-
 play_hvh(Player, Board) :-
 	write('Player'), write(Player), nl,
 	read_position_from(Player, Board, InitialColumn, InitialLine, JumpMoves, AdjoinMoves, CenterMoves),
-
-	write(JumpMoves), nl,
-	write(AdjoinMoves), nl,
-	write(CenterMoves), nl,
-
 	read_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, AdjoinMoves, CenterMoves, Move),
 	
 	Other is ((Player mod 2) + 1),
@@ -90,14 +85,19 @@ play_hvh(Player, Board) :-
 	% Adjoining move -> player plays again
 	((Move=='adjoin') ->
 		(print_board(10, NewBoard), nl,
-		(member2d(Other, NewBoard) -> play_hvh(Player, NewBoard);
+		(member2d(Other, NewBoard) ->
+			(member2d(Player, NewBoard) ->
+				play_hvh(Player, NewBoard);
+				(write('Player'), write(Other), write(' won!'), nl));
 			(write('Player'), write(Player), write(' won!'), nl)));
 	
 	% Centering move -> player passes the turn
 	((Move=='center') ->
 		(print_board(10, NewBoard), nl,
 		(member2d(Other, NewBoard) ->
-			play_hvh(Other, NewBoard);
+			(member2d(Player, NewBoard) ->
+				play_hvh(Other, NewBoard);
+				(write('Player'), write(Other), write(' won!'), nl));
 			(write('Player'), write(Player), write(' won!'), nl)));
 	
 	% Jumping move -> player passes the turn if the selected piece can't jump again
@@ -109,10 +109,12 @@ play_hvh(Player, Board) :-
 		move(NewBoard, JumpBoard, FinalColumn, FinalLine, JumpColumn, JumpLine),
 		print_board(10, JumpBoard), nl,
 		(member2d(Other, JumpBoard) ->
-			(get_jump_positions(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves),
-			((DoubleJumpMoves == []) ->
-				play_hvh(Other, JumpBoard);
-				play_hvh_jump(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves)));
+			(member2d(Player, JumpBoard) ->			
+				(get_jump_positions(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves),
+				((DoubleJumpMoves == []) ->
+					play_hvh(Other, JumpBoard);
+					play_hvh_jump(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves)));
+				(write('Player'), write(Other), write(' won!'), nl));
 			(write('Player'), write(Player), write(' won!'), nl)))))).
 
 
@@ -128,10 +130,12 @@ play_hvh_jump(Player, Board, InitialColumn, InitialLine, JumpMoves) :-
 	move(NewBoard, JumpBoard, FinalColumn, FinalLine, JumpColumn, JumpLine),
 	print_board(10, JumpBoard), nl,
 	(member2d(Other, JumpBoard) ->
-		(get_jump_positions(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves),
-		((DoubleJumpMoves == []) ->
-			play_hvh(Other, JumpBoard);
-			play_hvh_jump(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves)));
+		(member2d(Player, JumpBoard) ->		
+				(get_jump_positions(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves),
+				((DoubleJumpMoves == []) ->
+					play_hvh(Other, JumpBoard);
+					play_hvh_jump(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves)));
+				(write('Player'), write(Other), write(' won!'), nl));
 		(write('Player'), write(Player), write(' won!'), nl)).
 	
 
