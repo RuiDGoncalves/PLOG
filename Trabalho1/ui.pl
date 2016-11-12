@@ -78,9 +78,28 @@ play_hvh(Player, Board) :-
 	%if its jumping move to the position of the piece to be jumped over and then to the next position
 	%if its from centering or jumping give turn to other player
 	%if its from adjoin call adjoin, centering and jumpimp for every position until at least one of the lists isn't empty
-	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
+	Other is ((Player mod 2) + 1),
+	((Move=='adjoin') ->
+		(move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
+		NextPlayer is Player);
+	
+	(Move=='center') ->
+		(move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
+		NextPlayer is Other);
+	
+	(Move=='jump') ->
+		(move(Board, TempBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
+		DeltaLine is FinalLine-InitialLine,
+		DeltaColumn is FinalColumn-InitialColumn,
+		JumpLine is FinalLine+DeltaLine,
+		JumpColumn is FinalColumn+DeltaColumn,
+		move(TempBoard, NewBoard, FinalColumn, FinalLine, JumpColumn, JumpLine),
+		NextPlayer is Other)),
+
+
+	
 	print_board(10, NewBoard), nl,
-	((Player == 1) -> play_hvh(2, NewBoard); play_hvh(1, NewBoard)).
+	play_hvh(NextPlayer, NewBoard).
 
 
 /*========================================================================================================================================*/
