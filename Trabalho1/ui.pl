@@ -73,7 +73,7 @@ play_hvh(Player, Board) :-
 	%write(AdjoinMoves), nl,
 	%write(CenterMoves), nl,
 
-	read_position_to(Player, Board, FinalColumn, FinalLine),
+	read_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, AdjoinMoves, CenterMoves, Move),
 	%check if position is member of any of the lists
 	%if its jumping move to the position of the piece to be jumped over and then to the next position
 	%if its from centering or jumping give turn to other player
@@ -111,7 +111,7 @@ read_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMo
 read_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves) :- read_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves).
 	
 
-read_position_to(Player, Board, Column, Line) :-
+read_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move) :-
 	write('To   '),
 	get_code(C),
 	get_code(L), skip_line,
@@ -119,10 +119,14 @@ read_position_to(Player, Board, Column, Line) :-
 	L > 47, L < 58,
 	CNumber is C - 65,
 	LNumber is L - 48,
+	Pos is LNumber*10+CNumber,
+	(member(Pos, AdjoinMoves) -> (Move='adjoin');
+		member(Pos, CenterMoves) -> (Move='center');
+			member(Pos, JumpMoves) -> (Move='jump')),
 	Column is CNumber,
 	Line is LNumber.
 	
-read_position_to(Player, Board, Column, Line) :- read_position_to(Player, Board, Column, Line).
+read_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move) :- read_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move).
 
 
 /*==============================================================================================================================*/
