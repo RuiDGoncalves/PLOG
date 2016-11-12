@@ -29,7 +29,19 @@ main_menu :-
 
 
 /* Declaration of the initial board */
-board(B) :- B=[[2,1,2,1,2,1,2,1,2,1],
+board(B) :- B=[[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,2],
+		[0,0,0,0,0,0,0,0,2,0],
+		[0,0,0,0,0,0,1,0,0,0],
+		[0,0,0,0,0,0,2,0,2,0],
+		[0,0,0,0,0,2,0,2,0,0],
+		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0]]. 
+
+	/*
+	B=[[2,1,2,1,2,1,2,1,2,1],
 		[1,2,1,2,1,2,1,2,1,2],
 		[2,1,2,1,2,1,2,1,2,1],
 		[0,2,1,2,0,0,1,2,1,2],
@@ -38,7 +50,7 @@ board(B) :- B=[[2,1,2,1,2,1,2,1,2,1],
 		[2,1,2,1,2,1,2,1,2,1],
 		[1,2,1,2,1,2,1,2,1,2],
 		[2,1,2,1,2,1,2,1,2,1],
-		[1,2,1,2,1,2,1,2,1,2]].
+		[1,2,1,2,1,2,1,2,1,2]].*/
 
 	/*B=[[2,1,2,1,2,1,2,1,2,1],
 		[1,2,1,2,1,2,1,2,1,2],
@@ -55,15 +67,11 @@ board(B) :- B=[[2,1,2,1,2,1,2,1,2,1],
 /* PLAY MODE Human vs Human*/
 play_mode(1) :-
 	board(B),
-	play(1, B).
-
-/* Play prints the initial board (Player represents the player that begins the game) */
-play(Player, Board) :-
 	nl,
-	write(' -> Player 1 will start the game!'), nl,
-	print_board(10, Board), nl,
-	play_hvh(Player, Board).
-
+	write('Player1 -> '), black_circle, write('   '),
+	write('Player2 -> '), white_circle, nl,
+	print_board(10, B), nl,
+	play_hvh(1, B).
 
 /* Play the game in Human vs Human mode */
 play_hvh(Player, Board) :-
@@ -78,28 +86,57 @@ play_hvh(Player, Board) :-
 	%if its jumping move to the position of the piece to be jumped over and then to the next position
 	%if its from centering or jumping give turn to other player
 	%if its from adjoin call adjoin, centering and jumpimp for every position until at least one of the lists isn't empty
+	
 	Other is ((Player mod 2) + 1),
+	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
+
+	% Adjoining move -> player plays again
 	((Move=='adjoin') ->
-		(move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
-		NextPlayer is Player);
+		(print_board(10, NewBoard), nl,
+		(member2d(Other, NewBoard) -> play_hvh(Player, NewBoard);
+			(write('Player'), write(Player), write(' won!'), nl)));
 	
-	(Move=='center') ->
-		(move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
-		NextPlayer is Other);
+	% Centering move -> player passes the turn
+	((Move=='center') ->
+		(print_board(10, NewBoard), nl,
+		(member2d(Other, NewBoard) ->
+			play_hvh(Other, NewBoard);
+			(write('Player'), write(Player), write(' won!'), nl)));
 	
-	(Move=='jump') ->
-		(move(Board, TempBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
-		DeltaLine is FinalLine-InitialLine,
+	% Jumping move -> player passes the turn if the selected piece can't jump again
+	((Move=='jump') ->
+		(DeltaLine is FinalLine-InitialLine,
 		DeltaColumn is FinalColumn-InitialColumn,
 		JumpLine is FinalLine+DeltaLine,
 		JumpColumn is FinalColumn+DeltaColumn,
-		move(TempBoard, NewBoard, FinalColumn, FinalLine, JumpColumn, JumpLine),
-		NextPlayer is Other)),
+		move(NewBoard, JumpBoard, FinalColumn, FinalLine, JumpColumn, JumpLine),
+		print_board(10, JumpBoard), nl,
+		(member2d(Other, JumpBoard) ->
+			(get_jump_positions(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves),
+			((DoubleJumpMoves == []) ->
+				play_hvh(Other, JumpBoard);
+				play_hvh_jump(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves)));
+			(write('Player'), write(Player), write(' won!'), nl)))))).
 
 
+play_hvh_jump(Player, Board, InitialColumn, InitialLine, JumpMoves) :-
+	write('Player'), write(Player), nl,
+	read_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, [], [], Move),
+	Other is ((Player mod 2) + 1),
+	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
+	DeltaLine is FinalLine-InitialLine,
+	DeltaColumn is FinalColumn-InitialColumn,
+	JumpLine is FinalLine+DeltaLine,
+	JumpColumn is FinalColumn+DeltaColumn,
+	move(NewBoard, JumpBoard, FinalColumn, FinalLine, JumpColumn, JumpLine),
+	print_board(10, JumpBoard), nl,
+	(member2d(Other, JumpBoard) ->
+		(get_jump_positions(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves),
+		((DoubleJumpMoves == []) ->
+			play_hvh(Other, JumpBoard);
+			play_hvh_jump(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves)));
+		(write('Player'), write(Player), write(' won!'), nl)).
 	
-	print_board(10, NewBoard), nl,
-	play_hvh(NextPlayer, NewBoard).
 
 
 /*========================================================================================================================================*/
@@ -526,6 +563,19 @@ middle :- put_code(9532).
 
 black_circle :- put_code(11044).
 white_circle :- put_code(11093).%put_code(9711).
+
+
+/*========================================================================================================================================*/
+
+/* AUXILIAR */
+
+/* Check if Elem is in a 2d List */
+member2d(Elem, []) :- fail.
+
+member2d(Elem, [Line|List2d]) :-
+	(member(Elem, Line) -> true; member2d(Elem, List2d)).
+
+
 
 
 /*========================================================================================================================================*/
