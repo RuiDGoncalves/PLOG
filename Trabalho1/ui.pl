@@ -29,18 +29,18 @@ main_menu :-
 
 
 /* Declaration of the initial board */
-board(B) :- /*B=[[0,0,0,0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0,0,1,2],
-		[0,0,0,0,0,0,0,0,0,0],
+board(B) :- B=[[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,2,1,2,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,2,0,1,2],
 		[0,0,0,0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,1,0,0,0,0,2,0,0],
+		[0,0,2,0,0,0,0,0,1,0],
 		[0,0,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0]].
-*/
-	
+
+	/*
 	B=[[2,1,2,1,2,1,2,1,2,1],
 		[1,2,1,2,1,2,1,2,1,2],
 		[2,1,2,1,2,1,2,1,2,1],
@@ -50,7 +50,7 @@ board(B) :- /*B=[[0,0,0,0,0,0,0,0,0,0],
 		[2,1,2,1,2,1,2,1,2,1],
 		[1,2,1,2,1,2,1,2,1,2],
 		[2,1,2,1,2,1,2,1,2,1],
-		[1,2,1,2,1,2,1,2,1,2]].
+		[1,2,1,2,1,2,1,2,1,2]].*/
 
 	/*B=[[2,1,2,1,2,1,2,1,2,1],
 		[1,2,1,2,1,2,1,2,1,2],
@@ -231,6 +231,7 @@ change_line_position([Position|Line], [Piece|NewLine], Count, ColumnNr, Piece) :
 
 /* RESTRICTIONS */
 
+% Two pieces with the same color can never be adjacent
 restriction1(Player, Board, Column, Line) :-
 	Right is Column+1, Left is Column-1, Top is Line-1, Bottom is Line+1,
 	get_piece(Board, Top, Column, Piece0) , !,
@@ -241,6 +242,36 @@ restriction1(Player, Board, Column, Line) :-
 	Piece2 \= Player,
 	get_piece(Board, Line, Left, Piece3), !,
 	Piece3 \= Player.
+
+restriction1(Player, Board, Column, Line, NewColumn, NewLine) :-
+	Right is NewColumn+1, Left is NewColumn-1, Top is NewLine-1, Bottom is NewLine-1,
+	get_piece(Board, Top, NewColumn, Piece0) , !,
+	((Column == NewColumn, Line == Top) -> (Piece0 == Player); (Piece0 \= Player)),
+	get_piece(Board, Bottom, NewColumn, Piece1), !,
+	((Column == NewColumn, Line == Bottom) -> (Piece1 == Player); (Piece1 \= Player)),
+	get_piece(Board, NewLine, Right, Piece2), !,
+	((Column == Right, Line == NewLine) -> (Piece2 == Player); (Piece2 \= Player)),
+	get_piece(Board, NewLine, Left, Piece3), !,
+	((Column == Left, Line == NewLine) -> (Piece3 == Player); (Piece3 \= Player)).
+
+
+% Check if the piece is adjacent to one of the opponent's
+check_adjacency(Player, Board, Column, Line, Adjacency) :-
+	Right is Column+1, Left is Column-1, Top is Line-1, Bottom is Line+1,
+	Other is ((Player mod 2) + 1),
+	get_piece(Board, Top, Column, Piece0) , !,
+	get_piece(Board, Bottom, Column, Piece1), !,
+	get_piece(Board, Line, Right, Piece2), !,
+	get_piece(Board, Line, Left, Piece3), !,
+	(((Piece0 == Other); (Piece1 == Other); (Piece2 == Other); (Piece3 == Other)) -> (Adjacency='yes'); (Adjacency='no')).
+
+% Check if the new position also as adjacencies
+restriction2(Player, Board, Column, Line, 'no').
+
+restriction2(Player, Board, Column, Line, 'yes') :-
+	check_adjacency(Player, Board, Column, Line, Adjacency),
+	Adjacency == 'yes'.
+
 
 /*========================================================================================================================================*/
 /* JUMP */
@@ -337,6 +368,7 @@ check_jump_right(Player, Board, Column, Line, Other, Empty, Right) :-
 check_jump_right(Player, Board, Column, Line, Other, Empty, Right) :- Right=[].
 
 
+
 /*========================================================================================================================================*/
 
 /* ADJOIN */
@@ -373,7 +405,6 @@ check_no_ortogonal(Board, Column, Line) :-
 get_adjacency(Player, Board, Column, Line, Position) :-
 	get_piece(Board, Line, Column, Piece0),
 	Piece0 =:= 0,
-	restriction1(Player, Board, Column, Line),
 	Other is ((Player mod 2) + 1),
 	PL is Line-1, NL is Line+1, PC is Column-1, NC is Column+1,
 	get_piece(Board, PL, Column, Piece1),
@@ -394,27 +425,29 @@ get_adjacency(Player, Board, Column, Line, Position) :- Position=[].
 get_center_positions(Player, Board, Column, Line, AvailableMoves) :-
 	PL is Line-1, NL is Line+1, PC is Column-1, NC is Column+1,
 	Dist is sqrt(abs(Column-4.5)^2+abs(Line-4.5)^2),
-	get_closer(Player, Board, Dist, NC, NL, BR),
-	get_closer(Player, Board, Dist, NC, Line, R),
-	get_closer(Player, Board, Dist, NC, PL, TR),
-	get_closer(Player, Board, Dist, Column, NL, B),
-	get_closer(Player, Board, Dist, Column, PL, T),
-	get_closer(Player, Board, Dist, PC, NL, BL),
-	get_closer(Player, Board, Dist, PC, Line, L),
-	get_closer(Player, Board, Dist, PC, PL, TL),
+	check_adjacency(Player, Board, Column, Line, Adjacency),
+	get_closer(Player, Board, Dist, Column, Line, NC, NL, BR, Adjacency),
+	get_closer(Player, Board, Dist, Column, Line, NC, Line, R, Adjacency),
+	get_closer(Player, Board, Dist, Column, Line, NC, PL, TR, Adjacency),
+	get_closer(Player, Board, Dist, Column, Line, Column, NL, B, Adjacency),
+	get_closer(Player, Board, Dist, Column, Line, Column, PL, T, Adjacency),
+	get_closer(Player, Board, Dist, Column, Line, PC, NL, BL, Adjacency),
+	get_closer(Player, Board, Dist, Column, Line, PC, Line, L, Adjacency),
+	get_closer(Player, Board, Dist, Column, Line, PC, PL, TL, Adjacency),
 	Lists=[BR,R,TR,B,T,BL,L,TL],
 	append(Lists, AvailableMoves).
 
-get_closer(Player, Board, Dist, Column, Line, Position) :-
-	get_piece(Board, Line, Column, Piece),
+get_closer(Player, Board, Dist, Column, Line, NewColumn, NewLine, Position, Adjacency) :-
+	get_piece(Board, NewLine, NewColumn, Piece),
 	Piece =:= 0,
-	restriction1(Player, Board, Column, Line),
-	NewDist is sqrt(abs(Column-4.5)^2+abs(Line-4.5)^2),
+	restriction1(Player, Board, Column, Line, NewColumn, NewLine),
+	restriction2(Player, Board, NewColumn, NewLine, Adjacency),
+	NewDist is sqrt(abs(NewColumn-4.5)^2+abs(NewLine-4.5)^2),
 	NewDist < Dist,
-	P is Line*10+Column,	
+	P is NewLine*10+NewColumn,	
 	Position=[P].
 
-get_closer(Player, Board, Dist, Column, Line, Position) :- Position=[].
+get_closer(Player, Board, Dist, Column, Line, NewColumn, NewLine, Position, Adjacency) :- Position=[].
 
 
 	
