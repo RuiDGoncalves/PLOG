@@ -48,7 +48,7 @@ play_cvc(Player, Board) :-
 
 play_cvc_jump(Player, Board, InitialColumn, InitialLine, JumpMoves) :-
 	write('CPU'), write(Player), nl,
-	random_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, [], [], Move),
+	random_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, [], [], _),
 	Other is ((Player mod 2) + 1),
 	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
 	DeltaLine is FinalLine-InitialLine,

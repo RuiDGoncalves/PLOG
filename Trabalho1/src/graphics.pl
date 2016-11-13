@@ -72,7 +72,7 @@ print_bottom_line(Column) :-
 
 
 /* Print the middle of the board */
-print_squares(Currentline, Size, []).
+print_squares(_, _, []).
 
 print_squares(0, Size, [Line|Board]) :-
 	print_pieces(0, Size, Line),
@@ -106,7 +106,7 @@ print_middle_line(Size) :-
 
 
 /* Print the pieces and the vertical lines */
-print_pieces(Currline, Nrline, Line) :-
+print_pieces(Currline, _, Line) :-
 	write('  '),
 	write(Currline),
 	write(' '),

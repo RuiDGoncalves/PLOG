@@ -39,7 +39,7 @@ check_adjacency(Player, Board, Column, Line, Adjacency) :-
 	(((Piece0 == Other); (Piece1 == Other); (Piece2 == Other); (Piece3 == Other)) -> (Adjacency='yes'); (Adjacency='no')).
 
 % Check if the new position also as adjacencies
-restriction2(Player, Board, Column, Line, 'no').
+restriction2(_, _, _, _, 'no').
 
 restriction2(Player, Board, Column, Line, 'yes') :-
 	check_adjacency(Player, Board, Column, Line, Adjacency),
@@ -63,7 +63,7 @@ get_jump_positions(Player, Board, Column, Line, AvailableMoves) :-
 
 % Top
 % Jump out
-check_jump_top(Player, Board, Column, 1, Other, Empty, Top) :-
+check_jump_top(_, Board, Column, 1, Other, _, Top) :-
 	get_piece(Board, 0, Column, Jumped),
 	Jumped =:= Other,
 	Top=[Column].
@@ -78,11 +78,11 @@ check_jump_top(Player, Board, Column, Line, Other, Empty, Top) :-
 	T is (10*(Line-1)+Column),
 	Top=[T].
 
-check_jump_top(Player, Board, Column, Line, Other, Empty, Top) :- Top=[].
+check_jump_top(_, _, _, _, _, _, Top) :- Top=[].
 
 % Bottom
 % Jump out
-check_jump_bottom(Player, Board, Column, 8, Other, Empty, Bottom) :-
+check_jump_bottom(_, Board, Column, 8, Other, _, Bottom) :-
 	get_piece(Board, 9, Column, Jumped),
 	Jumped =:= Other,
 	B is (90+Column),
@@ -98,11 +98,11 @@ check_jump_bottom(Player, Board, Column, Line, Other, Empty, Bottom) :-
 	B is (10*(Line+1)+Column),
 	Bottom=[B].
 
-check_jump_bottom(Player, Board, Column, Line, Other, Empty, Bottom) :- Bottom=[].
+check_jump_bottom(_, _, _, _, _, _, Bottom) :- Bottom=[].
 
 % Left
 % Jump out
-check_jump_left(Player, Board, 1, Line, Other, Empty, Left) :-
+check_jump_left(_, Board, 1, Line, Other, _, Left) :-
 	get_piece(Board, Line, 0, Jumped),
 	Jumped =:= Other,
 	L is (Line*10),
@@ -118,11 +118,11 @@ check_jump_left(Player, Board, Column, Line, Other, Empty, Left) :-
 	L is (10*Line+Column-1),
 	Left=[L].
 
-check_jump_left(Player, Board, Column, Line, Other, Empty, Left) :- Left=[].
+check_jump_left(_, _, _, _, _, _, Left) :- Left=[].
 
 % Right
 % Jump out
-check_jump_right(Player, Board, 8, Line, Other, Empty, Right) :-
+check_jump_right(_, Board, 8, Line, Other, _, Right) :-
 	get_piece(Board, Line, 9, Jumped),
 	Jumped =:= Other,
 	R is (Line*10+9),
@@ -138,7 +138,7 @@ check_jump_right(Player, Board, Column, Line, Other, Empty, Right) :-
 	R is (10*Line+Column+1),
 	Right=[R].
 
-check_jump_right(Player, Board, Column, Line, Other, Empty, Right) :- Right=[].
+check_jump_right(_, _, _, _, _, _, Right) :- Right=[].
 
 
 
@@ -160,7 +160,7 @@ get_adjoin_positions(Player, Board, Column, Line, AvailableMoves) :-
 	Lists=[BR,R,TR,B,T,BL,L,TL],
 	append(Lists, AvailableMoves).
 
-get_adjoin_positions(Player, Board, Column, Line, AvailableMoves) :- AvailableMoves=[].
+get_adjoin_positions(_, _, _, _, AvailableMoves) :- AvailableMoves=[].
 
 
 check_no_ortogonal(Board, Column, Line) :-
@@ -188,7 +188,7 @@ get_adjacency(Player, Board, Column, Line, Position) :-
 	P is Line*10+Column,
 	Position=[P].
 
-get_adjacency(Player, Board, Column, Line, Position) :- Position=[].
+get_adjacency(_, _, _, _, Position) :- Position=[].
 
 
 /*========================================================================================================================================*/
@@ -220,4 +220,4 @@ get_closer(Player, Board, Dist, Column, Line, NewColumn, NewLine, Position, Adja
 	P is NewLine*10+NewColumn,	
 	Position=[P].
 
-get_closer(Player, Board, Dist, Column, Line, NewColumn, NewLine, Position, Adjacency) :- Position=[].
+get_closer(_, _, _, _, _, _, _, Position, _) :- Position=[].

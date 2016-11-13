@@ -9,7 +9,6 @@ random_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, Center
 	get_jump_positions(Player, Board, CNumber, LNumber, JM),
 	get_adjoin_positions(Player, Board, CNumber, LNumber, AM),
 	get_center_positions(Player, Board, CNumber, LNumber, CM),
-	Pos is LNumber*10+CNumber,
 	(JM \= []; AM \= []; CM \= []),
 	Column is CNumber,
 	Line is LNumber,
@@ -22,7 +21,7 @@ random_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, Center
 
 
 
-random_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move) :-
+random_position_to(_, _, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move) :-
 	random(0, 10, CNumber),
 	random(0, 10, LNumber),
 	Pos is LNumber*10+CNumber,

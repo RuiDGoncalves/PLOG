@@ -52,7 +52,7 @@ play_pvp(Player, Board) :-
 
 play_pvp_jump(Player, Board, InitialColumn, InitialLine, JumpMoves) :-
 	write('Player'), write(Player), nl,
-	read_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, [], [], Move),
+	read_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, [], [], _),
 	Other is ((Player mod 2) + 1),
 	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
 	DeltaLine is FinalLine-InitialLine,

@@ -23,7 +23,6 @@ read_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMo
 	get_jump_positions(Player, Board, CNumber, LNumber, JM),
 	get_adjoin_positions(Player, Board, CNumber, LNumber, AM),
 	get_center_positions(Player, Board, CNumber, LNumber, CM),
-	Pos is LNumber*10+CNumber,
 	(JM \= []; AM \= []; CM \= []),
 	Column is CNumber,
 	Line is LNumber,
@@ -34,7 +33,7 @@ read_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMo
 read_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves) :- read_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves).
 	
 
-read_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move) :-
+read_position_to(_, _, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move) :-
 	write('To   '),
 	get_code(C),
 	get_code(L), skip_line,
