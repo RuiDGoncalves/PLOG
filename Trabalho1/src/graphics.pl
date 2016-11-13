@@ -157,7 +157,7 @@ double_left_con :- put_code(9568).
 double_right_con :- put_code(9571).
 
 black_circle :- put_code(11044).
-white_circle :- put_code(11093).%put_code(9711).
+white_circle :- put_code(11093).
 
 double_horiz(0).
 double_horiz(N) :- double_horiz, N1 is N-1, double_horiz(N1).

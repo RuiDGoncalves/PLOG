@@ -4,11 +4,6 @@
 play_pvp(Player, Board) :-
 	write('Player'), write(Player), nl,
 	read_position_from(Player, Board, InitialColumn, InitialLine, JumpMoves, AdjoinMoves, CenterMoves),
-
-	%write('Jump'), write(' '), write(JumpMoves), nl,
-	%write('Adjoin'), write(' '), write(AdjoinMoves), nl,
-	%write('Center'), write(' '), write(CenterMoves), nl,
-
 	read_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, AdjoinMoves, CenterMoves, Move),
 	
 	Other is ((Player mod 2) + 1),

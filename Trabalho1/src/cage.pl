@@ -61,5 +61,3 @@ play_mode(3) :-
 	write('CPU2 -> '), white_circle, nl,
 	print_board(10, B), nl,
 	play_cvc(1, B).
-
-
