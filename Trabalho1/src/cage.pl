@@ -1,13 +1,18 @@
 /* CAGE */
 
 /* includes */
+:- use_module(library(random)).
 :- use_module(library(lists)).
+:- use_module(library(system)).
 :- ensure_loaded('board_states.pl').
 :- ensure_loaded('graphics.pl').
 :- ensure_loaded('utilities.pl').
 :- ensure_loaded('rules.pl').
 :- ensure_loaded('input.pl').
 :- ensure_loaded('play_pvp.pl').
+:- ensure_loaded('play_pvc.pl').
+:- ensure_loaded('play_cvc.pl').
+:- ensure_loaded('bot.pl').
 
 cage :-
 	nl,
@@ -41,3 +46,29 @@ play_mode(1) :-
 	write('Player2 -> '), white_circle, nl,
 	print_board(10, B), nl,
 	play_pvp(1, B).
+
+play_mode(2) :-
+	board(B),
+	nl, nl,
+	write('Player -> '), black_circle, write('   '),
+	write('CPU -> '), white_circle, nl,
+	print_board(10, B), nl,
+	play_pvc(1, B, 0).
+
+play_mode(3) :-
+	board(B),
+	nl, nl,
+	write('Player -> '), black_circle, write('   '),
+	write('CPU -> '), white_circle, nl,
+	print_board(10, B), nl,
+	play_pvc(1, B, 1).
+
+play_mode(4) :-
+	board(B),
+	nl, nl,
+	write('CPU1 -> '), black_circle, write('   '),
+	write('CPU2 -> '), white_circle, nl,
+	print_board(10, B), nl,
+	play_cvc(1, B, 0).
+
+
