@@ -1,7 +1,7 @@
 /* BOT */
 
-/* Choose move on the given board depending on difficulty */
-random_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Difficulty) :-
+/* Choose move on the given board randomly */
+random_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves) :-
 	random(0, 10, CNumber),
 	random(0, 10, LNumber),
 	get_piece(Board, LNumber, CNumber, Piece),
@@ -18,11 +18,11 @@ random_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, Center
 	CenterMoves=CM.
 
 
-random_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Difficulty) :- random_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Difficulty).
+random_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves) :- random_position_from(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves).
 
 
 
-random_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move, Difficulty) :-
+random_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move) :-
 	random(0, 10, CNumber),
 	random(0, 10, LNumber),
 	Pos is LNumber*10+CNumber,
@@ -32,4 +32,4 @@ random_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMo
 	Column is CNumber,
 	Line is LNumber.
 	
-random_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move, Difficulty) :- random_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move, Difficulty).
+random_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move) :- random_position_to(Player, Board, Column, Line, JumpMoves, AdjoinMoves, CenterMoves, Move).

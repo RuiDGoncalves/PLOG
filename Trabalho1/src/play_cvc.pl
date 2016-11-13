@@ -1,10 +1,11 @@
 /* PLAY MODE cvc/
 
 /* Play the game in Player vs Player mode */
-play_cvc(Player, Board, Difficulty) :-
+play_cvc(Player, Board) :-
+	write('CPU'), write(Player), nl,
 	sleep(1),
-	random_position_from(Player, Board, InitialColumn, InitialLine, JumpMoves, AdjoinMoves, CenterMoves, Difficulty),
-	random_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, AdjoinMoves, CenterMoves, Move, Difficulty),
+	random_position_from(Player, Board, InitialColumn, InitialLine, JumpMoves, AdjoinMoves, CenterMoves),
+	random_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, AdjoinMoves, CenterMoves, Move),
 	
 	Other is ((Player mod 2) + 1),
 	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
@@ -14,7 +15,7 @@ play_cvc(Player, Board, Difficulty) :-
 		(print_board(10, NewBoard), nl,
 		(member2d(Other, NewBoard) ->
 			(member2d(Player, NewBoard) ->
-				play_cvc(Player, NewBoard, Difficulty);
+				play_cvc(Player, NewBoard);
 				(write('CPU'), write(Other), write(' won!'), nl));
 			(write('CPU'), write(Player), write(' won!'), nl)));
 	
@@ -23,7 +24,7 @@ play_cvc(Player, Board, Difficulty) :-
 		(print_board(10, NewBoard), nl,
 		(member2d(Other, NewBoard) ->
 			(member2d(Player, NewBoard) ->
-				play_cvc(Other, NewBoard, Difficulty);
+				play_cvc(Other, NewBoard);
 				(write('CPU'), write(Other), write(' won!'), nl));
 			(write('CPU'), write(Player), write(' won!'), nl)));
 	
@@ -39,15 +40,15 @@ play_cvc(Player, Board, Difficulty) :-
 			(member2d(Player, JumpBoard) ->			
 				(get_jump_positions(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves),
 				((DoubleJumpMoves == []) ->
-					play_cvc(Other, JumpBoard, Difficulty);
-					play_cvc_jump(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves, Difficulty)));
+					play_cvc(Other, JumpBoard);
+					play_cvc_jump(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves)));
 				(write('CPU'), write(Other), write(' won!'), nl));
 			(write('CPU'), write(Player), write(' won!'), nl)))))).
 
 
-play_cvc_jump(Player, Board, InitialColumn, InitialLine, JumpMoves, Difficulty) :-
+play_cvc_jump(Player, Board, InitialColumn, InitialLine, JumpMoves) :-
 	write('CPU'), write(Player), nl,
-	random_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, [], [], Move, Difficulty),
+	random_position_to(Player, Board, FinalColumn, FinalLine, JumpMoves, [], [], Move),
 	Other is ((Player mod 2) + 1),
 	move(Board, NewBoard, InitialColumn, InitialLine, FinalColumn, FinalLine),
 	DeltaLine is FinalLine-InitialLine,
@@ -60,7 +61,7 @@ play_cvc_jump(Player, Board, InitialColumn, InitialLine, JumpMoves, Difficulty) 
 		(member2d(Player, JumpBoard) ->		
 				(get_jump_positions(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves),
 				((DoubleJumpMoves == []) ->
-					play_cvc(Other, JumpBoard, Difficulty);
-					play_cvc_jump(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves, Difficulty)));
+					play_cvc(Other, JumpBoard);
+					play_cvc_jump(Player, JumpBoard, JumpColumn, JumpLine, DoubleJumpMoves)));
 				(write('CPU'), write(Other), write(' won!'), nl));
 		(write('CPU'), write(Player), write(' won!'), nl)).
