@@ -7,3 +7,4 @@ achata_lista_aux([H|T], L) :-
 	achata_lista_aux(H, L1),
 	achata_lista_aux(T, L2),
 	append(L1, L2, L).
+	

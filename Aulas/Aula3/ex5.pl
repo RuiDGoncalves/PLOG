@@ -1,4 +1,4 @@
-membro(X,L) :-
+membro(X, L) :-
 	append(_,[X|_],L).
 
 
