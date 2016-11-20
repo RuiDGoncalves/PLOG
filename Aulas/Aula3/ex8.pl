@@ -9,7 +9,6 @@ conta_elem(X, Lista, N) :-
 	N =:= Num.
 
 
-
 % Predicado que conta o número de elementos de uma lista
 n_elementos([], 0).
 n_elementos([_|T], Num) :-
