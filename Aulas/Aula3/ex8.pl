@@ -1,8 +1,9 @@
+% Predicado que sucede se Lista tiver N elementos
 conta(Lista, N) :-
 	n_elementos(Lista, Num),
 	N =:= Num.
 
-
+% Predicado que sucede se Lista tiver N elementos com o valor X
 conta_elem(X, Lista, N) :-
 	n_elementos_x(Lista, X, Num),
 	N =:= Num.
@@ -15,7 +16,7 @@ n_elementos([_|T], Num) :-
 	n_elementos(T, NumNew),
 	Num is NumNew+1.
 
-% Predicado que conta o número de ocorrências de um dado elemento numa lista
+% Predicado que conta o número de ocorrências de um dado elemento X numa lista
 n_elementos_x([], _, 0).
 n_elementos_x([H|T], X, Num) :-
 	X == H,

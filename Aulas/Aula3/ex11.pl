@@ -1,3 +1,4 @@
+% Predicado que devolve a lista ElemsLista com todos os átomos existentes em Lista
 achata_lista(Lista, ElemsLista) :-
 	achata_lista_aux(Lista, ElemsLista).
 

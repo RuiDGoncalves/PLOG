@@ -1,3 +1,4 @@
+% Predicado que inverte Lista e devolve a lista invertida em InvLista
 inverter(Lista, InvLista) :- 
 	rev(Lista, [], InvLista). 
 

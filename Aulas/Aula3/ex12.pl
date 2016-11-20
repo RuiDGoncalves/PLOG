@@ -1,6 +1,7 @@
 :- include('ex6.pl').
 :- include('ex8.pl').
 
+% Predicado que sucede se a lista L2 for uma permutação de L1
 permutacao(L1, L2) :-
 	permutacao_aux(L1, L2).
 
