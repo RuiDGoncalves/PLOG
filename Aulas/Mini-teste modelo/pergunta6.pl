@@ -15,9 +15,10 @@ performance(8937,[97,101,105,110]).
 
 
 
-allPerfs :-
-	participant(ID, _, Performance),
-	performance(ID, Times),
-	write(ID),write(':'),write(Performance),write(':'),write(Times),nl,
-	fail.
-allPerfs.
+successfulParticipant(Participant) :-
+	performance(Participant, Times),
+	\+ (member(Time, Times), Time \= 120).
+
+nSuccessfulParticipants(T) :-
+	findall(Part, successfulParticipant(Part), List),
+	length(List, T).

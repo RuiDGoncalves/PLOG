@@ -15,9 +15,22 @@ performance(8937,[97,101,105,110]).
 
 
 
-allPerfs :-
-	participant(ID, _, Performance),
-	performance(ID, Times),
-	write(ID),write(':'),write(Performance),write(':'),write(Times),nl,
-	fail.
-allPerfs.
+:- use_module(library(lists)).
+
+madeItThrough(Participant) :-
+	performance(Participant, Pontos),
+	member(120, Pontos).
+
+eligibleOutcome(Id, Perf, TT) :-
+    performance(Id, Times),
+    madeItThrough(Id),
+    participant(Id, _, Perf),
+    sumlist(Times, TT).
+
+
+nextPhase(N, Participants) :-
+	setof(TT-Id-Perf, eligibleOutcome(Id, Perf, TT), Info),
+	reverse(Info, InfoRev),
+	nth1(N, InfoRev, InfoElem),
+	append(InicioInfo, [InfoElem|_], InfoRev),
+	append(InicioInfo, [InfoElem], Participants).
