@@ -19,7 +19,13 @@ More informations can be seen at: https://boardgamegeek.com/boardgame/72202/cage
 To run this project, consult cage.pl&#8203; and type:
 - cage.
 
-## Trabalho 2 - TBA
+Enjoy :)
+
+## Trabalho 2 - [Dominos](http://www.sapphiregames.com/dominoes/)
+Dominos is a puzzle where a set of dominoes is laid out, but their outlines are not displayed, and it is our job to work out the correct positioning of each domino by reconstructing the missing edges.
+
+To run this project, consult the prolog file of the project and type:
+- dominos.
 
 
 
