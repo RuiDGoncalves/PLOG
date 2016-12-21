@@ -13,26 +13,61 @@ test :-
 dominoes(N) :-
 	data(N, Board),
 	getBoardDimensions(Board, NColumns, NLines),
+	getMax(Board, Max),
 	createEmptyBoard(Empty, NColumns, NLines),
 	addHoles(Empty, Board, Result), !,
 	constraintHoles(Result), !,
 	transpose(Result, Transpose),
-	orientationConstrain(Result, Transpose),
+	orientationConstraint(Result, Transpose),
+	positionConstraint(Board, Result, 0, 0, Max),
 	append(Result, FlatResult),
 	domain(FlatResult, 0, 4),
 	labeling([], FlatResult),
 	print2d(Result).
-	
+	%printResult(Result).
+
+%=================================================================
 % Get value in 2d list
 index(Matrix, Row, Column, Value) :-
 	nth0(Row, Matrix, MatrixRow),
 	nth0(Column, MatrixRow, Value).
 	
+indexConstraint(Matrix, Row, Column, Value) :-
+	nth0(Row, Matrix, MatrixRow),
+	Column1 is Column+1,
+	element(Column1, MatrixRow, Value).
+	
+getMax(Matrix, Max) :-
+	append(Matrix, Flat),
+	max_member(Max, Flat).
+	
+	
+%=================================================================
 % Print 2d list
 print2d([]).
-print2d([Row|Tail]) :-
+print2d([Row|List]) :-
 	write(Row), nl,
-	print2d(Tail).
+	print2d(List).
+	
+% Print result list
+printResult([]).
+printResult([Row|Tail]) :-
+	printResultRow(Row),
+	printResult(Tail).
+	
+printResultRow([]) :- nl.
+printResultRow([1|Tail]) :-
+	write('w '),
+	printResultRow(Tail).
+printResultRow([2|Tail]) :-
+	write('e '),
+	printResultRow(Tail).
+printResultRow([3|Tail]) :-
+	write('n '),
+	printResultRow(Tail).
+printResultRow([4|Tail]) :-
+	write('s '),
+	printResultRow(Tail).
 
 
 %=================================================================
@@ -87,7 +122,7 @@ constraintHolesRow([_|Row]) :-
 	constraintHolesRow(Row).
 
 % Make sure West-East North-South
-orientationConstrain(Result, Transpose) :-
+orientationConstraint(Result, Transpose) :-
 	matchWestEast(Result),
 	matchNorthSouth(Transpose).
 	
@@ -120,8 +155,52 @@ matchRowNorthSouth([First,Second | Tail]) :-
 	First #= 3 #<=> Second #= 4,
 	matchRowNorthSouth([Second|Tail]).
 
+% Make sure each piece is in the right position and is placed only once
+positionConstraint(Board, Result, Max, Max, Max) :-
+	findPiece(Board, Result, Max, Max).
 
-data(0,[[0, 0],
+positionConstraint(Board, Result, Curr1, Max, Max) :-
+	findPiece(Board, Result, Curr1, Max),
+	NextCurr1 is Curr1+1,
+	positionConstraint(Board, Result, NextCurr1, NextCurr1, Max).
+	
+positionConstraint(Board, Result, Curr1, Curr2, Max) :-
+	findPiece(Board, Result, Curr1, Curr2),
+	NextCurr2 is Curr2+1,
+	positionConstraint(Board, Result, Curr1, NextCurr2, Max).
+	
+% find Num1-Num2 horizontal
+findPiece(Board, Result, Num1, Num2) :-
+	index(Board, Row, Column, Num1),
+	NextColumn is Column+1,
+	index(Board, Row, NextColumn, Num2),
+	indexConstraint(Result, Row, Column, 1).
+	
+% find Num2-Num1 horizontal
+findPiece(Board, Result, Num1, Num2) :-
+	index(Board, Row, Column, Num2),
+	NextColumn is Column+1,
+	index(Board, Row, NextColumn, Num1),
+	indexConstraint(Result, Row, Column, 1).
+
+% find Num1-Num2 vertical
+findPiece(Board, Result, Num1, Num2) :-
+	index(Board, Row, Column, Num1),
+	NextRow is Row+1,
+	index(Board, NextRow, Column, Num2),
+	indexConstraint(Result, Row, Column, 3).
+
+% find Num2-Num1 vertical
+findPiece(Board, Result, Num1, Num2) :-
+	index(Board, Row, Column, Num2),
+	NextRow is Row+1,
+	index(Board, NextRow, Column, Num1),
+	indexConstraint(Result, Row, Column, 3).
+
+
+
+data(0,[[1, 0],
+		[0, 1],
 		[0, 1]]).
 		
 data(1,[[0, 0, 1],
