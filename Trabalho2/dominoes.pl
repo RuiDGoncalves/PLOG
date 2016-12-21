@@ -15,6 +15,7 @@ dominoes(N) :-
 	getBoardDimensions(Board, NColumns, NLines),
 	createEmptyBoard(Empty, NColumns, NLines),
 	addHoles(Empty, Board, Result), !,
+	constraintHoles(Result), !,
 	transpose(Result, Transpose),
 	orientationConstrain(Result, Transpose),
 	append(Result, FlatResult),
@@ -67,10 +68,23 @@ addHolesRow([_|RE], [-1|RB], [0|RR]) :-
 	addHolesRow(RE, RB, RR).
 addHolesRow([X|RE], [_|RB], [X|RR]) :-
 	addHolesRow(RE, RB, RR).
-	
 
 %=================================================================
 % Constraints
+
+% Make sure every element > 0 except for holes
+constraintHoles([]).
+constraintHoles([Row|Tail]) :-
+	constraintHolesRow(Row),
+	constraintHoles(Tail).
+	
+constraintHolesRow([]).
+constraintHolesRow([Element|Row]) :-
+	var(Element), !,
+	Element #> 0,
+	constraintHolesRow(Row).
+constraintHolesRow([_|Row]) :-
+	constraintHolesRow(Row).
 
 % Make sure West-East North-South
 orientationConstrain(Result, Transpose) :-
@@ -84,20 +98,13 @@ matchWestEast([Row|Tail]) :-
 	matchRowWestEast(Row),
 	matchWestEast(Tail).
 
-matchFirstWestEast([Head|_]) :-
-	Head #> 0, #\ Head #= 2.
-matchFirstWestEast([0|_]).
+matchFirstWestEast([Head|_]) :- #\ Head #= 2.
 
 matchRowWestEast([]).
-matchRowWestEast([First]) :- First #> 0, #\ First #= 1.
+matchRowWestEast([First]) :- #\ First #= 1.
 matchRowWestEast([First,Second | Tail]) :-
-	First #> 0, Second #> 0,
 	First #= 1 #<=> Second #= 2,
 	matchRowWestEast([Second|Tail]).
-matchRowWestEast([0]).
-matchRowWestEast([0,Second | Tail]) :- matchRowWestEast([Second|Tail]).
-matchRowWestEast([_,0 | Tail]) :- matchRowWestEast(Tail).
-
 % Check North-South
 matchNorthSouth([]).
 matchNorthSouth([Row|Tail]) :-
@@ -105,19 +112,13 @@ matchNorthSouth([Row|Tail]) :-
 	matchRowNorthSouth(Row),
 	matchNorthSouth(Tail).
 
-matchFirstNorthSouth([Head|_]) :-
-	Head #> 0, #\ Head #= 4.
-matchFirstNorthSouth([0|_]).
+matchFirstNorthSouth([Head|_]) :- #\ Head #= 4.
 	
 matchRowNorthSouth([]).
-matchRowNorthSouth([First]) :- First #> 0, #\ First #= 3.
+matchRowNorthSouth([First]) :- #\ First #= 3.
 matchRowNorthSouth([First,Second | Tail]) :-
-	First #> 0, Second #> 0,
 	First #= 3 #<=> Second #= 4,
 	matchRowNorthSouth([Second|Tail]).
-matchRowNorthSouth([0]).
-matchRowNorthSouth([0,Second | Tail]) :- matchRowNorthSouth([Second|Tail]).
-matchRowNorthSouth([_,0 | Tail]) :- matchRowNorthSouth(Tail).
 
 
 data(0,[[0, 0],
