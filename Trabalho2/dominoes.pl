@@ -1,14 +1,5 @@
 :- use_module(library(lists)).
 :- use_module(library(clpfd)).
-
-
-test :-
-	length(List, 10),
-	nth0(3, List, 0),
-	domain(List, 0, 4),
-	labeling([], List),
-	write(List).
-
 	
 dominoes(N) :-
 	data(N, Board),
@@ -23,7 +14,8 @@ dominoes(N) :-
 	append(Result, FlatResult),
 	domain(FlatResult, 0, 4),
 	labeling([], FlatResult),
-	print2d(Result).
+	printLines(Board, Result).
+	%print2d(Result).
 	%printResult(Result).
 
 %=================================================================
@@ -49,7 +41,7 @@ print2d([Row|List]) :-
 	write(Row), nl,
 	print2d(List).
 	
-% Print result list
+% Print result orientations list
 printResult([]).
 printResult([Row|Tail]) :-
 	printResultRow(Row),
@@ -68,6 +60,43 @@ printResultRow([3|Tail]) :-
 printResultRow([4|Tail]) :-
 	write('s '),
 	printResultRow(Tail).
+
+% Print result lines
+printLines([], []).
+printLines([BRow|Board], [ORow|Orientations]) :-
+	printTop(BRow, ORow),
+	printRow(BRow, ORow),
+	printBottom(BRow, ORow),
+	printLines(Board, Orientations).
+
+printTop([], []) :- nl.
+printTop([_|BRow], [1|ORow]) :- lt_corner, horiz, horiz, horiz, printTop(BRow, ORow).
+printTop([_|BRow], [2|ORow]) :- horiz, rt_corner, printTop(BRow, ORow).
+printTop([_|BRow], [3|ORow]) :- lt_corner, horiz, rt_corner, printTop(BRow, ORow).
+printTop([_|BRow], [4|ORow]) :- vert, write(' '), vert, printTop(BRow, ORow).
+printTop([_|BRow], [0|ORow]) :- write('   '), printTop(BRow, ORow).
+
+printRow([], []) :- nl.
+printRow([Number|BRow], [1|ORow]) :- vert, write(Number), write(' '), write(' '), printRow(BRow, ORow).
+printRow([Number|BRow], [2|ORow]) :- write(Number), vert, printRow(BRow, ORow).
+printRow([Number|BRow], [3|ORow]) :- vert, write(Number), vert, printRow(BRow, ORow).
+printRow([Number|BRow], [4|ORow]) :- vert, write(Number), vert, printRow(BRow, ORow).
+printRow([_|BRow], [0|ORow]) :- write('   '), printRow(BRow, ORow).
+
+
+printBottom([], []) :- nl.
+printBottom([_|BRow], [1|ORow]) :- lb_corner, horiz, horiz, horiz, printBottom(BRow, ORow).
+printBottom([_|BRow], [2|ORow]) :- horiz, rb_corner, printBottom(BRow, ORow).
+printBottom([_|BRow], [3|ORow]) :- vert, write(' '), vert, printBottom(BRow, ORow).
+printBottom([_|BRow], [4|ORow]) :- lb_corner, horiz, rb_corner, printBottom(BRow, ORow).
+printBottom([_|BRow], [0|ORow]) :- write('   '), printBottom(BRow, ORow).
+
+lt_corner :- put_code(9484).
+rt_corner :- put_code(9488).
+lb_corner :- put_code(9492).
+rb_corner :- put_code(9496).
+horiz :- put_code(9472).
+vert :- put_code(9474).
 
 
 %=================================================================
