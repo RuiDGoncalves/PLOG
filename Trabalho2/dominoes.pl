@@ -1,9 +1,26 @@
 :- use_module(library(lists)).
 :- use_module(library(clpfd)).
-	
+:- use_module(library(random)).
+:- use_module(library(system)).
+
+
+dominoes :-
+	write('Size: '),
+	read(Size),
+	nl,
+	generateBoard(Size, Board),
+	append(Board, Flat),
+	generateHoles(Flat),
+	print2d(Board), nl,
+	solve(Board).
+
+
 dominoes(N) :-
-	statistics(walltime, _),
 	data(N, Board),
+	solve(Board).
+
+solve(Board) :-
+	statistics(walltime, _),
 	getBoardDimensions(Board, NColumns, NLines),
 	getMax(Board, Max),
 	createEmptyBoard(Empty, NColumns, NLines),
@@ -18,18 +35,20 @@ dominoes(N) :-
 	positionConstraint(Positions, PiecePositions, Result),
 	append(Result, FlatResult),
 	domain(FlatResult, 0, 4),
-	%labeling([], FlatResult),
 	statistics(walltime, [_|[ExecutionTime]]),
-	printLines(Board, Result),
-	write('Execution time: '), write(ExecutionTime), write(' ms').
-	%print2d(Result).
-	%printResult(Result).
+	printLines(Board, Result), nl,
+	write('Solving this took: '), write(ExecutionTime), write(' ms'), nl, nl.
+
 
 %=================================================================
 % Get value in 2d list
 index(Matrix, Row, Column, Value) :-
 	nth0(Row, Matrix, MatrixRow),
 	nth0(Column, MatrixRow, Value).
+
+indexNth1(Matrix, Row, Column, Value) :-
+	nth1(Row, Matrix, MatrixRow),
+	nth1(Column, MatrixRow, Value).
 	
 indexConstraint(Matrix, Row, Column, Value) :-
 	nth0(Row, Matrix, MatrixRow),
@@ -45,8 +64,23 @@ getMax(Matrix, Max) :-
 % Print 2d list
 print2d([]).
 print2d([Row|List]) :-
-	write(Row), nl,
+	printRow(Row),
 	print2d(List).
+
+printRow([]) :- nl.
+printRow([-1|Row]) :-
+	write('- '),
+	printRow(Row).
+printRow([Elem|Row]) :-
+	var(Elem),
+	write('- '),
+	printRow(Row).
+printRow([Elem|Row]) :-
+	writeResult(Elem), write(' '),
+	printRow(Row).
+
+
+
 	
 % Print result orientations list
 printResult([]).
@@ -260,6 +294,70 @@ positionConstraint([Pos|Positions], [PP|PiecePositions], Result) :-
 	indexConstraint(Result, Row, Column, Orientation),
 	positionConstraint(Positions, PiecePositions, Result).
 
+
+%=================================================================
+% Generate Board
+
+generateBoard(Size, Board) :-
+	Height is Size+2,
+	Width is Size+3,
+	length(Board, Height),
+	createRows(Board, Width),
+	addPieces(Board, 0, 0, Size, Height, Width).
+
+createRows([], _).
+createRows([Row|Board], Width) :-
+	length(Row, Width),
+	createRows(Board, Width).
+
+addPieces(Board, Max, Max, Max, Height, Width) :-
+	generatePiece(Board, Max, Max, Height, Width).
+
+addPieces(Board, Curr1, Max, Max, Height, Width) :-
+	generatePiece(Board, Curr1, Max, Height, Width),
+	NextCurr1 is Curr1+1,
+	addPieces(Board, NextCurr1, NextCurr1, Max, Height, Width).
+
+addPieces(Board, Curr1, Curr2, Max, Height, Width) :-
+	generatePiece(Board, Curr1, Curr2, Height, Width),
+	NextCurr2 is Curr2+1,
+	addPieces(Board, Curr1, NextCurr2, Max, Height, Width).
+
+generatePiece(Board, Curr1, Curr2, Height, Width) :-
+	repeat,
+	random(0, Height, Row),
+	random(0, Width, Column),
+	index(Board, Row, Column, Val1),
+	var(Val1),
+	Val1 is Curr1,
+	random(0, 4, Orientation),
+	getSecondCoord(Orientation, Row, Column, NextRow, NextColumn),
+	index(Board, NextRow, NextColumn, Val2),
+	var(Val2),
+	Val2 is Curr2, !.
+
+getSecondCoord(0, Row, Column, NextRow, NextColumn) :-
+	NextRow is Row+1,
+	NextColumn is Column.
+	
+getSecondCoord(1, Row, Column, NextRow, NextColumn) :-
+	NextRow is Row-1,
+	NextColumn is Column.
+
+getSecondCoord(2, Row, Column, NextRow, NextColumn) :-
+	NextColumn is Column+1,
+	NextRow is Row.
+
+getSecondCoord(3, Row, Column, NextRow, NextColumn) :-
+	NextColumn is Column-1,
+	NextRow is Row.
+
+generateHoles([]).
+generateHoles([Elem|Board]) :-
+	Elem is -1,
+	generateHoles(Board).
+generateHoles([_|Board]) :-
+	generateHoles(Board).
 
 
 data(0,[[1, 0],
